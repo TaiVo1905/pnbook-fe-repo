@@ -1,8 +1,8 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 import path from 'path';
@@ -12,7 +12,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(
-  
   { ignores: ['dist', 'node_modules', '*.config.js', '*.config.ts'] },
 
   js.configs.recommended,
@@ -39,19 +38,19 @@ export default defineConfig(
 
     rules: {
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': 'error', 
+      '@typescript-eslint/no-unused-vars': 'error',
       'no-undef': 'error',
       'no-console': 'warn',
-      ...reactHooks.configs.recommended.rules, 
+      ...reactHooks.configs.recommended.rules,
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true }
+        { allowConstantExport: true },
       ],
-      'eqeqeq': 'off',
-      'curly': ['error', 'all'],
+      eqeqeq: 'off',
+      curly: ['error', 'all'],
     },
   },
-  eslintConfigPrettier.configs.recommended
-)
+  eslintConfigPrettier
+);
