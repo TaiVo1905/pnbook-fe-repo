@@ -1,11 +1,6 @@
-import { Button } from '@/shared/components/ui/button';
-
+import AuthLayout from './core/layouts/auth';
 function App() {
-  return (
-    <div>
-      <Button>Click me</Button>
-    </div>
-  );
+  return <AuthLayout>welcome to pnbook!</AuthLayout>;
 }
 
 export default App;
