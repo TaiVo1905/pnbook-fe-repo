@@ -1,6 +1,6 @@
 import React from 'react';
 import { APP_CONFIG } from '@/core/configs/layout';
-import pnv from '@/core/assets/images/pnv.png';
+import pnv from '@/core/assets/images/pnv.webp';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
