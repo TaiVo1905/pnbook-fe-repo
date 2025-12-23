@@ -1,32 +1,20 @@
-import React from 'react';
-import { APP_CONFIG } from '@/core/configs/layout';
+import { type ReactNode } from 'react';
 import pnv from '@/core/assets/images/pnv.webp';
 
 interface AuthLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
+const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
     <div className="bg-background flex min-h-screen w-full items-center justify-center p-4">
-      <div
-        className="border-border bg-card rounded-auth flex w-full overflow-hidden border shadow-2xl"
-        style={{
-          maxWidth: APP_CONFIG.layout.authContainerWidth,
-          height: APP_CONFIG.layout.authContainerHeight,
-        }}
-      >
+      <div className="border-border bg-card rounded-auth flex h-[550px] w-full max-w-[750px] overflow-hidden border shadow-2xl">
         <div className="relative hidden w-1/2 lg:flex">
           <img src={pnv} alt="PNV" className="h-full w-full object-cover" />
         </div>
 
         <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
-          <div
-            className="w-full"
-            style={{ maxWidth: APP_CONFIG.layout.authFormMaxWidth }}
-          >
-            {children}
-          </div>
+          <div className="w-full max-w-[350px]">{children}</div>
         </div>
       </div>
     </div>
