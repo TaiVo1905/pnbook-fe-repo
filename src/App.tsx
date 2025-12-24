@@ -1,10 +1,15 @@
-import { Button } from '@/shared/components/ui/button';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { routes } from '@/routes/auth.routes';
 
 function App() {
   return (
-    <div>
-      <Button>Click me</Button>
-    </div>
+    <Router>
+      <Routes>
+        {routes.map((route, index) => (
+          <Route key={index} path={route.path} element={route.element} />
+        ))}
+      </Routes>
+    </Router>
   );
 }
 
