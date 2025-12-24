@@ -4,7 +4,6 @@ import type {
   AuthResponse,
 } from '@/features/auth/types/auth.type';
 
-// Sign up function
 export async function signUp(payload: SignUpPayload): Promise<AuthResponse> {
   try {
     const res = await fetch('/api/auth/signup', {
@@ -37,7 +36,6 @@ export async function signUp(payload: SignUpPayload): Promise<AuthResponse> {
   }
 }
 
-// Sign in function
 export async function signIn(payload: SignInPayload): Promise<AuthResponse> {
   try {
     const res = await fetch('/api/auth/signin', {

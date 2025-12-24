@@ -1,4 +1,3 @@
-// src/features/auth/hooks/useSignUp.ts
 import { useState } from 'react';
 import { signUp } from '@/features/auth/services/auth.helpers';
 import type { SignUpPayload } from '@/features/auth/types/auth.type';

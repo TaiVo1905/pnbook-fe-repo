@@ -1,18 +1,28 @@
-import { Navigate, type RouteObject } from 'react-router-dom';
-import SignInForm from '@/features/auth/components/signInForm';
-import SignUpForm from '@/features/auth/components/signUpForm';
+import { type RouteObject, Navigate } from 'react-router-dom';
+import { ParentLayout } from '@/core/layouts/parent.layout';
+import { PrivateLayout } from '@/core/layouts/private.layout';
+import AuthLayout from '@/core/layouts/auth.layout';
+
+import SignUpPage from '@/pages/signup.page';
+import SignInPage from '@/pages/signin.page';
 
 export const routes: RouteObject[] = [
   {
     path: '/',
-    element: <Navigate to="/signin" replace />,
-  },
-  {
-    path: '/signin',
-    element: <SignInForm />,
-  },
-  {
-    path: '/signup',
-    element: <SignUpForm />,
+    element: <ParentLayout />,
+    children: [
+      {
+        element: <AuthLayout />,
+        children: [
+          { index: true, element: <Navigate to="/signin" replace /> },
+          { path: 'signin', element: <SignInPage /> },
+          { path: 'signup', element: <SignUpPage /> },
+        ],
+      },
+      {
+        element: <PrivateLayout />,
+        children: [],
+      },
+    ],
   },
 ];

@@ -39,9 +39,7 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="bg-card text-card-foreground mx-auto w-full max-w-md rounded-lg border p-6 shadow-sm">
-      <h2 className="mb-6 text-center text-2xl font-bold">Sign In</h2>
-
+    <div>
       {error && (
         <Alert variant="destructive" className="mb-4">
           <AlertTitle>Sign In Failed</AlertTitle>
