@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Input } from '@/shared/components/ui/input';
-import { Label } from '@/shared/components/ui/label';
-import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/core/shadcn/components/ui/input';
+import { Label } from '@/core/shadcn/components/ui/label';
+import { Button } from '@/core/shadcn/components/ui/button';
 import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from '@/shared/components/ui/alert';
+} from '@/core/shadcn/components/ui/alert';
 
 import { signUpSchema } from '@/features/auth/schemas/signUp.schema';
 import type { SignUpFormValues } from '@/features/auth/schemas/signUp.schema';

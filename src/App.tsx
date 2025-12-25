@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
-import { routes } from '@/routes/auth.routes';
+import { routes } from '@/routes/app.routes';
 
 function AppRoutes() {
   return useRoutes(routes);
