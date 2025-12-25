@@ -1,13 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Label } from '@/core/shadcn/components/ui/label';
 import { Button } from '@/core/shadcn/components/ui/button';
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from '@/core/shadcn/components/ui/alert';
+import { toast } from 'sonner';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -38,28 +34,19 @@ export default function SignInForm() {
     if (isSuccess) reset();
   };
 
+  useEffect(() => {
+    if (error) toast.error(error);
+    if (success) toast.success(success);
+  }, [error, success]);
+
   return (
     <div>
-      {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertTitle>Sign In Failed</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {success && (
-        <Alert variant="default" className="mb-4">
-          <AlertTitle>Success</AlertTitle>
-          <AlertDescription>{success}</AlertDescription>
-        </Alert>
-      )}
-
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" {...register('email')} />
           {errors.email && (
-            <p className="text-sm text-red-600">{errors.email.message}</p>
+            <p className="text-xs text-red-600">{errors.email.message}</p>
           )}
         </div>
 
@@ -77,7 +64,7 @@ export default function SignInForm() {
             {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
           </span>
           {errors.password && (
-            <p className="text-sm text-red-600">{errors.password.message}</p>
+            <p className="text-xs text-red-600">{errors.password.message}</p>
           )}
         </div>
 

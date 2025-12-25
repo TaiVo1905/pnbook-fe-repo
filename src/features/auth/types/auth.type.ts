@@ -11,10 +11,12 @@ export interface SignInPayload {
 }
 
 export interface AuthResponse {
-  success: boolean;
+  statusCode: number;
   message: string;
-  userId?: string;
-  token?: string;
+  data?: {
+    accessToken: string;
+  };
+  timeStamp: string;
 }
 
 export interface SignUpFormValues {

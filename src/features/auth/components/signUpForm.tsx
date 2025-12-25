@@ -1,13 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Label } from '@/core/shadcn/components/ui/label';
 import { Button } from '@/core/shadcn/components/ui/button';
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from '@/core/shadcn/components/ui/alert';
+import { toast } from 'sonner';
 
 import { signUpSchema } from '@/features/auth/schemas/signUp.schema';
 import type { SignUpFormValues } from '@/features/auth/schemas/signUp.schema';
@@ -20,7 +16,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { useSignUp } from '@/features/auth/hooks/useSignUp';
 
 export default function SignUpForm() {
-  const { submit, loading, error } = useSignUp();
+  const { submit, loading, error, success } = useSignUp();
 
   const {
     register,
@@ -39,21 +35,19 @@ export default function SignUpForm() {
     if (isSuccess) reset();
   };
 
+  useEffect(() => {
+    if (error) toast.error(error);
+    if (success) toast.success(success);
+  }, [error, success]);
+
   return (
     <div>
-      {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertTitle>Sign Up Failed</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
           <Input id="name" type="text" {...register('name')} />
           {errors.name && (
-            <p className="text-sm text-red-600">{errors.name.message}</p>
+            <p className="text-xs text-red-600">{errors.name.message}</p>
           )}
         </div>
 
@@ -61,7 +55,7 @@ export default function SignUpForm() {
           <Label htmlFor="email">Email</Label>
           <Input id="email" type="email" {...register('email')} />
           {errors.email && (
-            <p className="text-sm text-red-600">{errors.email.message}</p>
+            <p className="text-xs text-red-600">{errors.email.message}</p>
           )}
         </div>
 
@@ -79,7 +73,7 @@ export default function SignUpForm() {
             {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
           </span>
           {errors.password && (
-            <p className="text-sm text-red-600">{errors.password.message}</p>
+            <p className="text-xs text-red-600">{errors.password.message}</p>
           )}
         </div>
 
@@ -97,7 +91,7 @@ export default function SignUpForm() {
             {showConfirm ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
           </span>
           {errors.confirmPassword && (
-            <p className="text-sm text-red-600">
+            <p className="text-xs text-red-600">
               {errors.confirmPassword.message}
             </p>
           )}

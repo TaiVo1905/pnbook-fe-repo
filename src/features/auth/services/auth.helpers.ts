@@ -8,30 +8,25 @@ export async function signUp(payload: SignUpPayload): Promise<AuthResponse> {
   try {
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
       return {
-        success: false,
+        statusCode: res.status,
         message: `Sign up failed: ${res.statusText}`,
+        timeStamp: new Date().toISOString(),
       };
     }
 
     const data = await res.json();
-    return {
-      success: data.success,
-      message: data.message,
-      userId: data.userId,
-      token: data.token,
-    };
+    return data as AuthResponse;
   } catch {
     return {
-      success: false,
+      statusCode: 500,
       message: 'Network error during sign up',
+      timeStamp: new Date().toISOString(),
     };
   }
 }
@@ -40,30 +35,25 @@ export async function signIn(payload: SignInPayload): Promise<AuthResponse> {
   try {
     const res = await fetch('/api/auth/signin', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
       return {
-        success: false,
+        statusCode: res.status,
         message: `Sign in failed: ${res.statusText}`,
+        timeStamp: new Date().toISOString(),
       };
     }
 
     const data = await res.json();
-    return {
-      success: data.success,
-      message: data.message,
-      userId: data.userId,
-      token: data.token,
-    };
+    return data as AuthResponse;
   } catch {
     return {
-      success: false,
+      statusCode: 500,
       message: 'Network error during sign in',
+      timeStamp: new Date().toISOString(),
     };
   }
 }
