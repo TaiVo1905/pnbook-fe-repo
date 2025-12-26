@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signUp } from '@/features/auth/services/auth.helpers';
+import { signUp } from '@/features/auth/services/auth.api';
 import type { SignUpPayload } from '@/features/auth/types/auth.type';
 
 export function useSignUp() {

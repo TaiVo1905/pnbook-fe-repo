@@ -4,11 +4,11 @@ import SignInPage from '@/features/auth/pages/signin.page';
 
 export const authRoutes: RouteObject[] = [
   {
-    path: 'signin',
+    path: 'sign-in',
     element: <SignInPage />,
   },
   {
-    path: 'signup',
+    path: 'sign-up',
     element: <SignUpPage />,
   },
 ];
