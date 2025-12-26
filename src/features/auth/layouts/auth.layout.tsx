@@ -1,12 +1,14 @@
-import { type ReactNode } from 'react';
 import pnv from '@/core/assets/images/pnv.webp';
+import type { ReactNode } from 'react';
+
 interface AuthLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
+
 const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
     <div className="bg-background flex min-h-screen w-full items-center justify-center p-4">
-      <div className="border-border bg-card rounded-auth max-w-auth-container h-auth-container flex w-full overflow-hidden border shadow-2xl">
+      <div className="border-border bg-card rounded-auth max-w-auth-container min-h-auth-container flex w-full overflow-hidden border shadow-2xl">
         <div className="relative hidden w-1/2 lg:flex">
           <img src={pnv} alt="PNV" className="h-full w-full object-cover" />
         </div>
@@ -17,4 +19,5 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
     </div>
   );
 };
+
 export default AuthLayout;

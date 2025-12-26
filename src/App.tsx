@@ -1,6 +1,14 @@
-import AuthLayout from './core/layouts/auth';
+import { BrowserRouter as Router } from 'react-router-dom';
+import AppRoutes from './AppRoutes';
+import { Toaster } from 'sonner';
+
 function App() {
-  return <AuthLayout>welcome to pnbook!</AuthLayout>;
+  return (
+    <Router>
+      <AppRoutes />
+      <Toaster richColors position="top-right" />
+    </Router>
+  );
 }
 
 export default App;
