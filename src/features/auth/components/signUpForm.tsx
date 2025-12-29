@@ -14,9 +14,16 @@ import { FcGoogle } from 'react-icons/fc';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 import { useSignUp } from '@/features/auth/hooks/useSignUp';
+import { useGoogleSignIn } from '../hooks/useGoogleSignIn';
 
 export default function SignUpForm() {
   const { submit, loading, error, success } = useSignUp();
+  const {
+    submit: googleSubmit,
+    loading: googleLoading,
+    error: googleError,
+    success: googleSuccess,
+  } = useGoogleSignIn();
 
   const {
     register,
@@ -40,9 +47,9 @@ export default function SignUpForm() {
   };
 
   useEffect(() => {
-    if (error) toast.error(error);
-    if (success) toast.success(success);
-  }, [error, success]);
+    if (error || googleError) toast.error(error || googleError);
+    if (success || googleSuccess) toast.success(success || googleSuccess);
+  }, [error, success, googleError, googleSuccess]);
 
   return (
     <div>
@@ -111,9 +118,16 @@ export default function SignUpForm() {
       </form>
 
       <div className="mt-6 space-y-4">
-        <Button className="bg-white-500 flex w-full items-center justify-center gap-2 border text-black hover:bg-gray-100">
+        <Button
+          type="button"
+          onClick={async () => {
+            await googleSubmit();
+          }}
+          disabled={googleLoading}
+          className="bg-white-500 flex w-full items-center justify-center gap-2 border text-black hover:bg-gray-100"
+        >
           <FcGoogle className="text-xl" />
-          Sign up with Google
+          {googleLoading ? 'Signing In...' : 'Sign In with Google'}
         </Button>
       </div>
 

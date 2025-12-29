@@ -15,9 +15,17 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 import { signInSchema } from '@/features/auth/schemas/signIn.schema';
 import type { SignInFormValues } from '@/features/auth/schemas/signIn.schema';
+import { useGoogleSignIn } from '../hooks/useGoogleSignIn';
 
 export default function SignInForm() {
   const { submit, loading, error, success } = useSignIn();
+  const {
+    submit: googleSubmit,
+    loading: googleLoading,
+    error: googleError,
+    success: googleSuccess,
+  } = useGoogleSignIn();
+
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -35,9 +43,9 @@ export default function SignInForm() {
   };
 
   useEffect(() => {
-    if (error) toast.error(error);
-    if (success) toast.success(success);
-  }, [error, success]);
+    if (error || googleError) toast.error(error || googleError);
+    if (success || googleSuccess) toast.success(success || googleSuccess);
+  }, [error, success, googleError, googleSuccess]);
 
   return (
     <div>
@@ -78,9 +86,16 @@ export default function SignInForm() {
       </form>
 
       <div className="mt-6 space-y-4">
-        <Button className="bg-white-500 flex w-full items-center justify-center gap-2 border text-black hover:bg-gray-100">
+        <Button
+          type="button"
+          onClick={async () => {
+            await googleSubmit();
+          }}
+          disabled={googleLoading}
+          className="bg-white-500 flex w-full items-center justify-center gap-2 border text-black hover:bg-gray-100"
+        >
           <FcGoogle className="text-xl" />
-          Sign in with Google
+          {googleLoading ? 'Signing In...' : 'Sign In with Google'}
         </Button>
       </div>
 

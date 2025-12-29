@@ -13,9 +13,6 @@ export interface SignInPayload {
 export interface AuthResponse {
   statusCode: number;
   message: string;
-  data?: {
-    accessToken: string;
-  };
   timeStamp: string;
 }
 
@@ -24,4 +21,8 @@ export interface SignUpFormValues {
   email: string;
   password: string;
   confirmPassword: string;
+}
+
+export interface GoogleSignInPayload {
+  authCode: string;
 }
