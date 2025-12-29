@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Label } from '@/core/shadcn/components/ui/label';
 import { Button } from '@/core/shadcn/components/ui/button';
@@ -29,10 +29,14 @@ export default function SignUpForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const navigate = useNavigate();
 
   const onSubmit = async (values: SignUpFormValues) => {
     const isSuccess = await submit(values);
-    if (isSuccess) reset();
+    if (isSuccess) {
+      reset();
+      navigate('/sign-in');
+    }
   };
 
   useEffect(() => {
@@ -78,11 +82,11 @@ export default function SignUpForm() {
         </div>
 
         <div className="relative space-y-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <Label htmlFor="passwordConfirmation">Confirm Password</Label>
           <Input
-            id="confirmPassword"
+            id="passwordConfirmation"
             type={showConfirm ? 'text' : 'password'}
-            {...register('confirmPassword')}
+            {...register('passwordConfirmation')}
           />
           <span
             className="absolute top-9 right-3 cursor-pointer text-gray-600"
@@ -90,9 +94,9 @@ export default function SignUpForm() {
           >
             {showConfirm ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
           </span>
-          {errors.confirmPassword && (
+          {errors.passwordConfirmation && (
             <p className="text-xs text-red-600">
-              {errors.confirmPassword.message}
+              {errors.passwordConfirmation.message}
             </p>
           )}
         </div>
@@ -115,8 +119,8 @@ export default function SignUpForm() {
 
       <p className="text-muted-foreground mt-4 text-center text-sm">
         Already have an account?{' '}
-        <Link to="/signin" className="text-blue-500 hover:underline">
-          Log in
+        <Link to="/sign-in" className="text-blue-500 hover:underline">
+          Sign in
         </Link>
       </p>
     </div>

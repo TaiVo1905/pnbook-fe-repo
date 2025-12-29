@@ -1,17 +1,26 @@
-import { type RouteObject } from 'react-router-dom';
+import { type RouteObject, Navigate } from 'react-router-dom';
 import { PrivateLayout } from '@/core/layouts/private.layout';
 import PublicLayout from '@/core/layouts/public.layout';
 import { authRoutes } from '@/features/auth/routes/auth.routes';
 
 export const routes: RouteObject[] = [
   {
-    path: '/',
     element: <PublicLayout />,
-    children: [...authRoutes],
+    children: [
+      {
+        path: '/',
+        element: <Navigate to="/sign-in" replace />,
+      },
+      ...authRoutes,
+    ],
   },
   {
-    path: '/',
+    path: '/app',
     element: <PrivateLayout />,
     children: [],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/sign-in" replace />,
   },
 ];

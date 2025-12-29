@@ -2,7 +2,7 @@ export interface SignUpPayload {
   name: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  passwordConfirmation: string;
 }
 
 export interface SignInPayload {

@@ -6,7 +6,7 @@ import type {
 
 export async function signUp(payload: SignUpPayload): Promise<AuthResponse> {
   try {
-    const res = await fetch('/api/auth/signup', {
+    const res = await fetch('http://localhost:5001/api/v1/auth/sign-up', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -22,7 +22,8 @@ export async function signUp(payload: SignUpPayload): Promise<AuthResponse> {
 
     const data = await res.json();
     return data as AuthResponse;
-  } catch {
+  } catch (error) {
+    console.log(error);
     return {
       statusCode: 500,
       message: 'Network error during sign up',
@@ -33,7 +34,7 @@ export async function signUp(payload: SignUpPayload): Promise<AuthResponse> {
 
 export async function signIn(payload: SignInPayload): Promise<AuthResponse> {
   try {
-    const res = await fetch('/api/auth/signin', {
+    const res = await fetch('http://localhost:5001/api/v1/auth/sign-in', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

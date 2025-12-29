@@ -15,7 +15,7 @@ export function useSignIn() {
     try {
       const res = await signIn(payload);
 
-      if (res.statusCode !== 200 || !res.data?.accessToken) {
+      if (res.statusCode !== 200) {
         setError(res.message);
         return false;
       }
