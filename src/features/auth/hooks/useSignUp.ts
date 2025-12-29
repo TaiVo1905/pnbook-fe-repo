@@ -15,7 +15,7 @@ export function useSignUp() {
     try {
       const res = await signUp(payload);
 
-      if (res.statusCode !== 200 || !res.data?.accessToken) {
+      if (res.statusCode !== 201) {
         setError(res.message);
         return false;
       }
