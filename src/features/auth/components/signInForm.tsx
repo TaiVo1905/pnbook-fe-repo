@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Label } from '@/core/shadcn/components/ui/label';
 import { Button } from '@/core/shadcn/components/ui/button';
@@ -27,6 +27,7 @@ export default function SignInForm() {
   } = useGoogleSignIn();
 
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -39,7 +40,10 @@ export default function SignInForm() {
 
   const onSubmit = async (values: SignInFormValues) => {
     const isSuccess = await submit(values);
-    if (isSuccess) reset();
+    if (isSuccess) {
+      reset();
+      navigate('/app/home');
+    }
   };
 
   useEffect(() => {
