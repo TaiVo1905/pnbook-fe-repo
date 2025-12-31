@@ -31,16 +31,16 @@ export interface CreatePostPayload {
 
 export interface Comment {
   id: string;
-  post_id: string;
-  user_id: string;
+  postId: string;
+  userId: string;
   content: string;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface Reply {
   id: string;
-  comment_id: string;
-  user_id: string;
+  commentId: string;
+  userId: string;
   content: string;
 }
 

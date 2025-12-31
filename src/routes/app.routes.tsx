@@ -1,19 +1,16 @@
 import { type RouteObject, Navigate } from 'react-router-dom';
-import { PrivateLayout } from '@/core/layouts/private.layout';
-import PublicLayout from '@/core/layouts/public.layout';
+import { PrivateLayout } from '@/core/layouts/PrivateLayout';
+import PublicLayout from '@/core/layouts/PublicLayout';
 import { authRoutes } from '@/features/auth/routes/auth.routes';
 import { postRoutes } from '@/features/post/routes/post.routes';
-import { DashboardLayout } from '@/features/post/layouts/dashboard.layout';
-import { SearchPage } from '@/features/post/pages/search.page';
+import { SearchPage } from '@/features/post/pages/SearchPage';
+import { NotFoundPage } from '@/core/pages/NotFoundPage';
 
 export const routes: RouteObject[] = [
   {
     element: <PublicLayout />,
     children: [
-      {
-        path: '/',
-        element: <Navigate to="/sign-in" replace />,
-      },
+      { path: '/', element: <Navigate to="/sign-in" replace /> },
       ...authRoutes,
     ],
   },
@@ -23,36 +20,14 @@ export const routes: RouteObject[] = [
     children: [
       {
         path: 'home',
-        element: <DashboardLayout />,
-        children: [
-          ...postRoutes,
-          {
-            path: 'search',
-            element: <SearchPage />,
-          },
-        ],
+        children: [...postRoutes, { path: 'search', element: <SearchPage /> }],
       },
-      {
-        path: 'notifications',
-        element: <DashboardLayout />,
-        children: postRoutes,
-      },
-      {
-        path: 'friends',
-        element: <DashboardLayout />,
-      },
-      {
-        path: 'messages',
-        element: <DashboardLayout />,
-      },
-      {
-        path: 'profile',
-        element: <DashboardLayout />,
-      },
+      { path: 'notifications', element: <NotFoundPage /> },
+      { path: 'friends', element: <NotFoundPage /> },
+      { path: 'messages', element: <NotFoundPage /> },
+      { path: 'profile', element: <NotFoundPage /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
-  {
-    path: '*',
-    element: <Navigate to="/sign-in" replace />,
-  },
+  { path: '*', element: <Navigate to="/sign-in" replace /> },
 ];

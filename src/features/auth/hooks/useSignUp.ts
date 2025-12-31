@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signUp } from '@/features/auth/services/auth.api';
+import { authApi } from '@/features/auth/services/auth.api';
 import type { SignUpPayload } from '@/features/auth/types/auth.type';
 
 export function useSignUp() {
@@ -13,7 +13,7 @@ export function useSignUp() {
     setSuccess(null);
 
     try {
-      const res = await signUp(payload);
+      const res = await authApi.signUp(payload);
 
       if (res.statusCode !== 201) {
         setError(res.message);

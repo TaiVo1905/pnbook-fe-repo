@@ -1,91 +1,36 @@
-const BASE_URL = 'https://pn-book-bj6tn.ondigitalocean.app/api/v1';
-
-const defaultHeaders = {
-  'Content-Type': 'application/json',
-};
+import { httpClient } from '@/core/api/httpClient.api';
+import type { BaseResponse } from '@/core/types/api.type';
+import type { Post, CreatePostPayload } from '../types/post.type';
 
 export const postApi = {
-  createPost: async (payload: { content: string; image_url?: string }) => {
-    const res = await fetch(`${BASE_URL}/posts`, {
-      method: 'POST',
-      headers: defaultHeaders,
-      credentials: 'include',
-      body: JSON.stringify(payload),
+  getFeeds: (page = 1, limit = 20) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
     });
-    return res.json();
+    return httpClient.get<BaseResponse<Post[]>>(`/feeds?${params}`);
   },
 
-  getFeeds: async () => {
-    const res = await fetch(`${BASE_URL}/feeds`, {
-      headers: defaultHeaders,
-      credentials: 'include',
+  createPost: (payload: CreatePostPayload) =>
+    httpClient.post<BaseResponse<Post>>('/posts', payload),
+
+  getUserById: (userId: string) =>
+    httpClient.get<BaseResponse<{ name: string; avatarUrl: string }>>(
+      `/users/${userId}`
+    ),
+
+  searchUsers: (keyword: string, page = 1, limit = 20) => {
+    const params = new URLSearchParams({
+      keyword,
+      page: page.toString(),
+      limit: limit.toString(),
     });
-    return res.json();
+    return httpClient.get<BaseResponse<[]>>(`/search/users?${params}`);
   },
 
-  getUserPosts: async (userId: string) => {
-    const res = await fetch(`${BASE_URL}/users/${userId}/posts`, {
-      headers: defaultHeaders,
-      credentials: 'include',
-    });
-    return res.json();
-  },
+  updatePost: (postId: string, content: string) =>
+    httpClient.patch<BaseResponse<Post>>(`/posts/${postId}`, { content }),
 
-  getPostDetail: async (postId: string) => {
-    const res = await fetch(`${BASE_URL}/posts/${postId}`, {
-      headers: defaultHeaders,
-      credentials: 'include',
-    });
-    return res.json();
-  },
-
-  updatePost: async (postId: string, content: string) => {
-    const res = await fetch(`${BASE_URL}/posts/${postId}`, {
-      method: 'PATCH',
-      headers: defaultHeaders,
-      credentials: 'include',
-      body: JSON.stringify({ content }),
-    });
-    return res.json();
-  },
-
-  deletePost: async (postId: string) => {
-    const res = await fetch(`${BASE_URL}/posts/${postId}`, {
-      method: 'DELETE',
-      headers: defaultHeaders,
-      credentials: 'include',
-    });
-    return res.json();
-  },
-
-  getReactions: async (postId: string) => {
-    const res = await fetch(`${BASE_URL}/posts/${postId}/reactions`, {
-      headers: defaultHeaders,
-      credentials: 'include',
-    });
-    return res.json();
-  },
-
-  getUserById: async (userId: string) => {
-    const res = await fetch(`${BASE_URL}/users/${userId}`, {
-      headers: defaultHeaders,
-      credentials: 'include',
-    });
-    return res.json();
-  },
-
-  searchUsers: async (
-    keyword: string,
-    page: number = 1,
-    limit: number = 20
-  ) => {
-    const res = await fetch(
-      `${BASE_URL}/search/users?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${limit}`,
-      {
-        headers: defaultHeaders,
-        credentials: 'include',
-      }
-    );
-    return res.json();
-  },
+  deletePost: (postId: string) =>
+    httpClient.delete<BaseResponse<void>>(`/posts/${postId}`),
 };

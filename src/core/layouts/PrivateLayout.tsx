@@ -12,9 +12,8 @@ import {
 } from 'lucide-react';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Button } from '@/core/shadcn/components/ui/button';
-import type { SidebarItemProps } from '../types/post.type';
-import { useState } from 'react';
-import type { KeyboardEvent } from 'react';
+import { useState, type KeyboardEvent } from 'react';
+import type { SidebarItemProps } from '@/features/post/types/post.type';
 
 const SidebarItem = ({
   icon: Icon,
@@ -35,16 +34,19 @@ const SidebarItem = ({
   </Link>
 );
 
-export const DashboardLayout = () => {
+export const PrivateLayout = () => {
   const [keyword, setKeyword] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
+
   const handleSearch = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && keyword.trim()) {
       e.preventDefault();
-      navigate(`/app/home/search?keyword=${keyword.trim()}`);
+      navigate(
+        `/app/home/search?keyword=${encodeURIComponent(keyword.trim())}`
+      );
     }
   };
 
@@ -100,21 +102,19 @@ export const DashboardLayout = () => {
       <div className="ml-64 flex flex-1 flex-col">
         <header className="bg-card sticky top-0 z-10 flex h-16 items-center border-b px-8">
           <div className="flex-1" />
-
           <div className="relative mx-auto w-full max-w-2xl">
             <Search
               className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2"
               size={18}
             />
             <Input
-              placeholder="Tìm kiếm người dùng..."
+              placeholder="Search for creators..."
               className="bg-border/50 h-10 w-full rounded-full border-none pl-10"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={handleSearch}
             />
           </div>
-
           <div className="flex flex-1 items-center justify-end gap-3">
             <Button variant="ghost" size="icon" className="rounded-full">
               <Moon size={20} />

@@ -10,9 +10,15 @@ export const PostCard = ({ post }: { post: Post }) => {
       <div className="flex items-start justify-between p-4">
         <div className="flex gap-3">
           <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border bg-pink-100">
-            <span className="font-bold text-pink-600">
-              {post.user?.avatar || 'U'}
-            </span>
+            {post.user?.avatar ? (
+              <img
+                src={post.user.avatar}
+                alt={post.user?.name || 'User avatar'}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="font-bold text-pink-600">U</span>
+            )}
           </div>
           <div>
             <h4 className="text-[15px] font-bold">
@@ -31,14 +37,23 @@ export const PostCard = ({ post }: { post: Post }) => {
 
         {post.attachments && post.attachments.length > 0 && (
           <div className="grid gap-2">
-            {post.attachments.map((img) => (
-              <img
-                key={img.id}
-                src={img.attachmentUrl}
-                alt="Post content"
-                className="max-h-[500px] w-full rounded-lg object-cover"
-              />
-            ))}
+            {post.attachments.map((attachment) =>
+              attachment.attachmentType === 'video' ? (
+                <video
+                  key={attachment.id}
+                  src={attachment.attachmentUrl}
+                  controls
+                  className="max-h-[500px] w-full rounded-lg object-cover"
+                />
+              ) : (
+                <img
+                  key={attachment.id}
+                  src={attachment.attachmentUrl}
+                  alt="Post content"
+                  className="max-h-[500px] w-full rounded-lg object-cover"
+                />
+              )
+            )}
           </div>
         )}
       </div>

@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { CreatePostModal } from '../components/create-post-modal';
-import { PostCard } from '../components/post-card';
+import { useState, useEffect, useMemo } from 'react';
+import { CreatePostModal } from '../components/CreatePostModal';
+import { PostCard } from '../components/PostCard';
 import { toast } from 'sonner';
 import { postApi } from '../services/post.api';
 import type { Post } from '../types/post.type';
 import { Button } from '@/core/shadcn/components/ui/button';
 import { ImageIcon } from 'lucide-react';
+const { getUserById, getFeeds } = postApi;
 
 export const FeedPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -15,7 +16,7 @@ export const FeedPage = () => {
   useEffect(() => {
     const fetchFeedsAndUsers = async () => {
       try {
-        const response = await postApi.getFeeds();
+        const response = await getFeeds();
 
         if (response && response.statusCode === 200) {
           const feedData = response.data;
@@ -23,7 +24,7 @@ export const FeedPage = () => {
           const postsWithUserData = await Promise.all(
             feedData.map(async (post: Post) => {
               try {
-                const userRes = await postApi.getUserById(post.posterId);
+                const userRes = await getUserById(post.posterId);
                 if (userRes && userRes.statusCode === 200) {
                   return {
                     ...post,
@@ -53,6 +54,17 @@ export const FeedPage = () => {
 
     fetchFeedsAndUsers();
   }, []);
+
+  const renderedPosts = useMemo(() => {
+    if (posts.length === 0) {
+      return (
+        <div className="text-muted-foreground py-10 text-center">
+          No posts available.
+        </div>
+      );
+    }
+    return posts.map((post: Post) => <PostCard key={post.id} post={post} />);
+  }, [posts]);
 
   if (loading) return <div className="py-10 text-center">Loading feeds...</div>;
 
@@ -85,13 +97,7 @@ export const FeedPage = () => {
           </Button>
         </div>
       </div>
-      {posts.length > 0 ? (
-        posts.map((post: Post) => <PostCard key={post.id} post={post} />)
-      ) : (
-        <div className="text-muted-foreground py-10 text-center">
-          No posts available.
-        </div>
-      )}
+      {renderedPosts}
       <CreatePostModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
