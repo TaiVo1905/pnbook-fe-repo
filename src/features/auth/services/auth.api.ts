@@ -12,6 +12,7 @@ export async function signUp(payload: SignUpPayload): Promise<AuthResponse> {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload),
       }
     );
@@ -42,6 +43,7 @@ export async function signIn(payload: SignInPayload): Promise<AuthResponse> {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload),
       }
     );
@@ -74,6 +76,7 @@ export async function googleSignIn(
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload),
       }
     );

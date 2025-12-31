@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { googleSignIn } from '@/features/auth/services/auth.api';
 import type { GoogleSignInPayload } from '@/features/auth/types/auth.type';
 import { useGoogleLogin } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
 
 export function useGoogleSignIn() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const submit = async (payload: GoogleSignInPayload) => {
     setLoading(true);
@@ -15,6 +17,7 @@ export function useGoogleSignIn() {
 
     try {
       const res = await googleSignIn(payload);
+      navigate('/app/home');
 
       if (res.statusCode !== 200) {
         setError(res.message);
