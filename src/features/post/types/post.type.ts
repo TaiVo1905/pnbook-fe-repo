@@ -24,9 +24,26 @@ export interface Post {
   };
 }
 
+export interface CreatePostAttachment {
+  key: string;
+  attachmentUrl: string;
+  type: 'image' | 'video';
+}
+
+export interface CreatePostModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onPostCreated?: () => void;
+}
+
+export interface ApiError {
+  message: string;
+}
+
 export interface CreatePostPayload {
   content: string;
-  image_url?: string;
+  originalPostId?: string;
+  attachments: CreatePostAttachment[];
 }
 
 export interface Comment {
