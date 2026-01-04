@@ -9,6 +9,7 @@ import type {
   CreatePostAttachment,
   CreatePostModalProps,
   CreatePostPayload,
+  UploadedAttachment,
 } from '../types/post.type';
 
 export const CreatePostModal = ({
@@ -24,24 +25,85 @@ export const CreatePostModal = ({
   if (!isOpen) return null;
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
 
-    const isVideo = file.type.startsWith('video/');
-    const attachmentUrl = URL.createObjectURL(file);
+    if (!files || files.length === 0) return;
+
+    const selectedFiles = Array.from(files);
 
     setAttachments((prev) => [
       ...prev,
-      {
-        key: crypto.randomUUID(),
-        attachmentUrl,
-        type: isVideo ? 'video' : 'image',
-      },
+      ...selectedFiles.map((file) => {
+        const isVideo = file.type.startsWith('video/');
+        const attachmentUrl = URL.createObjectURL(file);
+
+        return {
+          key: crypto.randomUUID(),
+          attachmentUrl,
+          type: isVideo ? 'video' : 'image',
+          file,
+          mimeType: file.type || 'application/octet-stream',
+        } satisfies CreatePostAttachment;
+      }),
     ]);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const removeAttachment = (key: string) => {
-    setAttachments((prev) => prev.filter((item) => item.key !== key));
+    setAttachments((prev) => {
+      const target = prev.find((item) => item.key === key);
+      if (target) {
+        URL.revokeObjectURL(target.attachmentUrl);
+      }
+      return prev.filter((item) => item.key !== key);
+    });
+  };
+
+  const uploadAttachments = async (): Promise<UploadedAttachment[]> => {
+    if (attachments.length === 0) return [];
+
+    return Promise.all(
+      attachments.map(async (attachment) => {
+        if (!attachment.file || !attachment.mimeType) {
+          return {
+            key: attachment.key,
+            attachmentUrl: attachment.attachmentUrl,
+            type: attachment.type,
+          } satisfies UploadedAttachment;
+        }
+
+        const response = await postApi.getPresignedUrl({
+          filename: `public/${attachment.file.name}`,
+          mimeType: attachment.mimeType,
+        });
+
+        const { key, url } = response.data;
+
+        const uploadRes = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': attachment.mimeType,
+          },
+          body: attachment.file,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error(`Failed to upload ${attachment.file.name}`);
+        }
+
+        const s3BaseUrl = import.meta.env.VITE_S3_BASE_URL;
+        const uploadedUrl = `${s3BaseUrl}/${key}`;
+
+        return {
+          key,
+          attachmentUrl: uploadedUrl,
+          type: attachment.type,
+        } satisfies UploadedAttachment;
+      })
+    );
   };
 
   const handlePost = async () => {
@@ -49,9 +111,11 @@ export const CreatePostModal = ({
 
     setIsSubmitting(true);
     try {
+      const uploadedAttachments = await uploadAttachments();
+
       const payload: CreatePostPayload = {
         content: text,
-        attachments,
+        attachments: uploadedAttachments,
       };
 
       const res = await postApi.createPost(payload);
@@ -59,7 +123,10 @@ export const CreatePostModal = ({
       if (res.statusCode === 201 || res.statusCode === 200) {
         toast.success('Post published successfully!');
         setText('');
-        setAttachments([]);
+        setAttachments((prev) => {
+          prev.forEach((item) => URL.revokeObjectURL(item.attachmentUrl));
+          return [];
+        });
         onClose();
         onPostCreated?.();
       } else {
