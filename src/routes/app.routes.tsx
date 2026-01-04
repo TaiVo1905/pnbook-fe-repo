@@ -5,6 +5,7 @@ import { authRoutes } from '@/features/auth/routes/auth.routes';
 import { postRoutes } from '@/features/post/routes/post.routes';
 import { SearchPage } from '@/features/post/pages/SearchPage';
 import { NotFoundPage } from '@/core/pages/NotFoundPage';
+import { friendsRoutes } from '@/features/friend/routes/friend.route';
 
 export const routes: RouteObject[] = [
   {
@@ -30,4 +31,10 @@ export const routes: RouteObject[] = [
     ],
   },
   { path: '*', element: <Navigate to="/sign-in" replace /> },
+    children: [...friendsRoutes],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/sign-in" replace />,
+  },
 ];
