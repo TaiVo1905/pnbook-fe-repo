@@ -18,7 +18,6 @@ export const routes: RouteObject[] = [
         path: '/',
         element: <Navigate to="/messages" replace />,
       },
-      ...messagingRoutes,
     ],
   },
   {
@@ -30,8 +29,8 @@ export const routes: RouteObject[] = [
         children: [...postRoutes, { path: 'search', element: <SearchPage /> }],
       },
       ...friendsRoutes,
+      ...messagingRoutes,
       { path: 'notifications', element: <NotFoundPage /> },
-      { path: 'messages', element: <NotFoundPage /> },
       { path: 'profile', element: <NotFoundPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
