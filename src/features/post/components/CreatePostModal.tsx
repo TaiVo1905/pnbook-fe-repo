@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
-import type { ChangeEvent } from 'react';
-import { X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/core/shadcn/components/ui/button';
 import { postApi } from '../services/post.api';
 import { toast } from 'sonner';
+import { FileUploadButton } from './FileUploadButton';
+import { AttachmentPreview } from './AttachmentPreview';
 import type {
   ApiError,
   CreatePostAttachment,
@@ -20,49 +21,39 @@ export const CreatePostModal = ({
   const [text, setText] = useState('');
   const [attachments, setAttachments] = useState<CreatePostAttachment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!isOpen) return null;
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-
-    if (!files || files.length === 0) return;
-
-    const selectedFiles = Array.from(files);
-
+  const handleFilesSelected = useCallback((files: File[]) => {
     setAttachments((prev) => [
       ...prev,
-      ...selectedFiles.map((file) => {
+      ...files.map((file) => {
         const isVideo = file.type.startsWith('video/');
+        const isAudio = file.type.startsWith('audio/');
         const attachmentUrl = URL.createObjectURL(file);
 
         return {
           key: crypto.randomUUID(),
           attachmentUrl,
-          type: isVideo ? 'video' : 'image',
+          type: isVideo ? 'video' : isAudio ? 'audio' : 'image',
           file,
           mimeType: file.type || 'application/octet-stream',
         } satisfies CreatePostAttachment;
       }),
     ]);
+  }, []);
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const removeAttachment = (key: string) => {
+  const removeAttachment = useCallback((key: string) => {
     setAttachments((prev) => {
       const target = prev.find((item) => item.key === key);
-      if (target) {
+      if (target?.attachmentUrl) {
         URL.revokeObjectURL(target.attachmentUrl);
       }
       return prev.filter((item) => item.key !== key);
     });
-  };
+  }, []);
 
-  const uploadAttachments = async (): Promise<UploadedAttachment[]> => {
+  const uploadAttachments = useCallback(async (): Promise<
+    UploadedAttachment[]
+  > => {
     if (attachments.length === 0) return [];
 
     return Promise.all(
@@ -104,9 +95,9 @@ export const CreatePostModal = ({
         } satisfies UploadedAttachment;
       })
     );
-  };
+  }, [attachments]);
 
-  const handlePost = async () => {
+  const handlePost = useCallback(async () => {
     if (!text.trim() && attachments.length === 0) return;
 
     setIsSubmitting(true);
@@ -124,7 +115,11 @@ export const CreatePostModal = ({
         toast.success('Post published successfully!');
         setText('');
         setAttachments((prev) => {
-          prev.forEach((item) => URL.revokeObjectURL(item.attachmentUrl));
+          prev.forEach((item) => {
+            if (item.attachmentUrl) {
+              URL.revokeObjectURL(item.attachmentUrl);
+            }
+          });
           return [];
         });
         onClose();
@@ -152,7 +147,11 @@ export const CreatePostModal = ({
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [text, attachments, uploadAttachments, onClose, onPostCreated]);
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -161,7 +160,7 @@ export const CreatePostModal = ({
           <h2 className="text-lg font-bold">Create post</h2>
           <button
             onClick={onClose}
-            className="text-muted-foreground hover:bg-accent rounded-full p-1"
+            className="text-muted-foreground hover:bg-accent cursor-pointer rounded-full p-1"
           >
             <X size={20} />
           </button>
@@ -176,49 +175,15 @@ export const CreatePostModal = ({
             disabled={isSubmitting}
           />
 
-          <div className="grid grid-cols-2 gap-2">
-            {attachments.map((file) => (
-              <div
-                key={file.key}
-                className="group relative aspect-video overflow-hidden rounded-lg border"
-              >
-                {file.type === 'video' ? (
-                  <video
-                    src={file.attachmentUrl}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <img
-                    src={file.attachmentUrl}
-                    className="h-full w-full object-cover"
-                    alt="Preview"
-                  />
-                )}
-                <button
-                  onClick={() => removeAttachment(file.key)}
-                  className="absolute top-2 right-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <input
-            type="file"
-            accept="image/*,video/*"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileChange}
+          <AttachmentPreview
+            attachments={attachments}
+            onRemove={removeAttachment}
           />
 
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="hover:bg-accent/50 flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors"
-          >
-            <span className="text-[14px] font-medium">Add photo/video</span>
-            <ImageIcon className="text-green-500" size={24} />
-          </div>
+          <FileUploadButton
+            onFilesSelected={handleFilesSelected}
+            disabled={isSubmitting}
+          />
 
           <Button
             onClick={handlePost}

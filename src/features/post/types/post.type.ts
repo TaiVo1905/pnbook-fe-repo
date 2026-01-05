@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
+import type { UserPreview } from '@/shared/types/user.type';
 
 export interface PostLayoutProps {
   children?: ReactNode;
@@ -8,7 +9,7 @@ export interface Attachment {
   id: string;
   postId: string;
   attachmentUrl: string;
-  attachmentType: 'image' | 'video';
+  attachmentType: 'image' | 'video' | 'audio';
   createdAt: string;
   deletedAt: string | null;
 }
@@ -19,27 +20,37 @@ export interface Post {
   content: string;
   originalPostId: string | null;
   reactionCount: number;
+  reacted?: boolean;
+  isReacted?: boolean;
   createdAt: string;
   deletedAt: string | null;
   attachments: Attachment[];
-  user?: {
-    name: string;
-    avatar: string;
+  poster: UserPreview;
+  originalPost?: Omit<Post, 'originalPost'>;
+  _count: {
+    comments: number;
+    shares: number;
   };
 }
 
 export interface CreatePostAttachment {
   key: string;
-  attachmentUrl: string;
-  type: 'image' | 'video';
+  attachmentUrl?: string;
+  type: 'image' | 'video' | 'audio';
   file?: File;
   mimeType?: string;
 }
 
 export interface UploadedAttachment {
   key: string;
-  attachmentUrl: string;
-  type: 'image' | 'video';
+  attachmentUrl?: string;
+  type: 'image' | 'video' | 'audio';
+}
+
+export interface UpdatePostPayload {
+  content: string;
+  attachments?: UploadedAttachment[];
+  originalPostId?: string | null;
 }
 
 export interface CreatePostModalProps {
@@ -55,7 +66,7 @@ export interface ApiError {
 export interface CreatePostPayload {
   content: string;
   originalPostId?: string;
-  attachments: UploadedAttachment[];
+  attachments?: UploadedAttachment[];
 }
 
 export interface PresignedUrlRequest {
@@ -66,21 +77,6 @@ export interface PresignedUrlRequest {
 export interface PresignedUrlResponse {
   key: string;
   url: string;
-}
-
-export interface Comment {
-  id: string;
-  postId: string;
-  userId: string;
-  content: string;
-  createdAt: string;
-}
-
-export interface Reply {
-  id: string;
-  commentId: string;
-  userId: string;
-  content: string;
 }
 
 export interface SidebarItemProps {

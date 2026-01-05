@@ -7,42 +7,35 @@ import type { Post } from '../types/post.type';
 import { Button } from '@/core/shadcn/components/ui/button';
 import { ImageIcon } from 'lucide-react';
 import PostLayout from '../layouts/PostLayout';
+import { userApi, type UserProfile } from '@/core/api/user.api';
 
 export const FeedPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
 
-  const fetchFeedsAndUsers = useCallback(async () => {
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const response = await userApi.getCurrentUser();
+      if (response) {
+        setCurrentUser(response.data);
+      }
+    } catch {
+      toast.error('Failed to fetch current user');
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
+  const fetchFeeds = useCallback(async () => {
     try {
       const response = await postApi.getFeeds();
 
       if (response && response.statusCode === 200) {
-        const feedData = response.data;
-
-        const postsWithUserData = await Promise.all(
-          feedData.map(async (post: Post) => {
-            try {
-              const userRes = await postApi.getUserById(post.posterId);
-
-              if (userRes && userRes.statusCode === 200) {
-                return {
-                  ...post,
-                  user: {
-                    name: userRes.data.name,
-                    avatar: userRes.data.avatarUrl,
-                  },
-                };
-              }
-            } catch (err: unknown) {
-              console.error(`Failed to fetch user ${post.posterId}`, err);
-            }
-
-            return post;
-          })
-        );
-
-        setPosts(postsWithUserData);
+        setPosts(response.data);
       } else {
         toast.error(response.message || 'Failed to fetch feeds');
       }
@@ -54,8 +47,8 @@ export const FeedPage = () => {
   }, []);
 
   useEffect(() => {
-    fetchFeedsAndUsers();
-  }, [fetchFeedsAndUsers]);
+    fetchFeeds();
+  }, [fetchFeeds]);
 
   if (loading) {
     return <div className="py-10 text-center">Loading feeds...</div>;
@@ -68,14 +61,18 @@ export const FeedPage = () => {
           <div className="mb-4 flex items-center gap-3">
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border">
               <img
-                src="https://github.com/shadcn.png"
+                src={
+                  currentUser
+                    ? currentUser.avatarUrl
+                    : 'https://github.com/shadcn.png'
+                }
                 alt="User avatar"
                 className="h-full w-full object-cover"
               />
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-border/50 text-muted-foreground hover:bg-border flex-1 rounded-full px-5 py-2.5 text-left transition-colors"
+              className="bg-border/50 text-muted-foreground hover:bg-border flex-1 cursor-pointer rounded-full px-5 py-2.5 text-left transition-colors"
             >
               What do you think?
             </button>
@@ -106,7 +103,7 @@ export const FeedPage = () => {
         <CreatePostModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onPostCreated={fetchFeedsAndUsers}
+          onPostCreated={fetchFeeds}
         />
       </div>
     </PostLayout>

@@ -9,7 +9,7 @@ export async function getFriendSuggestions(
 ): Promise<FriendApiResponse<FriendRequest[]>> {
   try {
     const res = await fetch(
-      `https://pn-book-bj6tn.ondigitalocean.app/api/v1/friendships?page=${page}&limit=${limit}`,
+      `${import.meta.env.VITE_API_BASE_URL}/friendships?page=${page}&limit=${limit}`,
       {
         method: 'GET',
         credentials: 'include',
@@ -50,7 +50,7 @@ export async function postSendFriendRequest(
 ): Promise<FriendApiResponse<null>> {
   try {
     const res = await fetch(
-      'https://pn-book-bj6tn.ondigitalocean.app/api/v1/friendships',
+      `${import.meta.env.VITE_API_BASE_URL}/friendships`,
       {
         method: 'POST',
         headers: {
