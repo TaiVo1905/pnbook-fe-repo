@@ -165,7 +165,7 @@ export const CreatePostModal = ({
           <h2 className="text-lg font-bold">Create post</h2>
           <button
             onClick={onClose}
-            className="text-muted-foreground hover:bg-accent rounded-full p-1"
+            className="text-muted-foreground hover:bg-accent cursor-pointer rounded-full p-1"
           >
             <X size={20} />
           </button>
@@ -200,7 +200,7 @@ export const CreatePostModal = ({
                 )}
                 <button
                   onClick={() => removeAttachment(file.key)}
-                  className="absolute top-2 right-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
+                  className="absolute top-2 right-2 cursor-pointer rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
                 >
                   <X size={16} />
                 </button>
