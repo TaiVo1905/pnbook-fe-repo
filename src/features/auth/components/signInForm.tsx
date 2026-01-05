@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Label } from '@/core/shadcn/components/ui/label';
@@ -38,13 +38,16 @@ export default function SignInForm() {
     resolver: zodResolver(signInSchema),
   });
 
-  const onSubmit = async (values: SignInFormValues) => {
-    const isSuccess = await submit(values);
-    if (isSuccess) {
-      reset();
-      navigate('/app/home');
-    }
-  };
+  const onSubmit = useCallback(
+    async (values: SignInFormValues) => {
+      const isSuccess = await submit(values);
+      if (isSuccess) {
+        reset();
+        navigate('/app/home');
+      }
+    },
+    [submit, reset, navigate]
+  );
 
   useEffect(() => {
     if (error || googleError) toast.error(error || googleError);

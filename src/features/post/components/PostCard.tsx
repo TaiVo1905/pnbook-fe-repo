@@ -1,9 +1,13 @@
+import { useMemo, memo } from 'react';
 import { ThumbsUp, MessageSquare, Share2, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/core/shadcn/components/ui/button';
 import type { Post, PostActionProps } from '../types/post.type';
 
-export const PostCard = ({ post }: { post: Post }) => {
-  const timeAgo = new Date(post.createdAt).toLocaleDateString();
+export const PostCard = memo(({ post }: { post: Post }) => {
+  const timeAgo = useMemo(
+    () => new Date(post.createdAt).toLocaleDateString(),
+    [post.createdAt]
+  );
 
   return (
     <div className="bg-card overflow-hidden rounded-xl border shadow-sm">
@@ -73,9 +77,9 @@ export const PostCard = ({ post }: { post: Post }) => {
       </div>
     </div>
   );
-};
+});
 
-const PostAction = ({ icon: Icon, label, onClick }: PostActionProps) => (
+const PostAction = memo(({ icon: Icon, label, onClick }: PostActionProps) => (
   <Button
     variant="ghost"
     onClick={onClick}
@@ -84,4 +88,4 @@ const PostAction = ({ icon: Icon, label, onClick }: PostActionProps) => (
     <Icon size={18} />
     <span className="font-medium">{label}</span>
   </Button>
-);
+));
