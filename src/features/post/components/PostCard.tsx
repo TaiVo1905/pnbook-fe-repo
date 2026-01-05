@@ -1,3 +1,4 @@
+import { useMemo, memo } from 'react';
 import { useState, type MouseEvent } from 'react';
 import {
   ThumbsUp,
@@ -17,12 +18,14 @@ import {
 import type { Post, PostActionProps, Attachment } from '../types/post.type';
 import { cn } from '@/core/shadcn/utils/utils';
 
-export const PostCard = ({ post }: { post: Post }) => {
+export const PostCard = memo(({ post }: { post: Post }) => {
+  const timeAgo = useMemo(
+    () => new Date(post.createdAt).toLocaleDateString(),
+    [post.createdAt]
+  );
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null
   );
-
-  const timeAgo = new Date(post.createdAt).toLocaleDateString();
   const attachments = post.attachments || [];
 
   const handleOpenLightbox = (index: number) => {
@@ -202,9 +205,9 @@ export const PostCard = ({ post }: { post: Post }) => {
       </div>
     </div>
   );
-};
+});
 
-const PostAction = ({ icon: Icon, label, onClick }: PostActionProps) => (
+const PostAction = memo(({ icon: Icon, label, onClick }: PostActionProps) => (
   <Button
     variant="ghost"
     onClick={onClick}
@@ -213,4 +216,4 @@ const PostAction = ({ icon: Icon, label, onClick }: PostActionProps) => (
     <Icon size={18} />
     <span className="font-medium">{label}</span>
   </Button>
-);
+));

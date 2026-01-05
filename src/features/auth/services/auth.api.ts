@@ -15,4 +15,6 @@ export const authApi = {
 
   googleSignIn: (payload: GoogleSignInPayload) =>
     httpClient.post<AuthResponse>('/auth/google', payload),
+
+  signOut: () => httpClient.get<AuthResponse>('/auth/sign-out'),
 };
