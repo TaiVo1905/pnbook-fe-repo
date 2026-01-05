@@ -1,5 +1,9 @@
 import type { LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 
+export interface PostLayoutProps {
+  children?: ReactNode;
+}
 export interface Attachment {
   id: string;
   postId: string;
@@ -24,9 +28,44 @@ export interface Post {
   };
 }
 
+export interface CreatePostAttachment {
+  key: string;
+  attachmentUrl: string;
+  type: 'image' | 'video';
+  file?: File;
+  mimeType?: string;
+}
+
+export interface UploadedAttachment {
+  key: string;
+  attachmentUrl: string;
+  type: 'image' | 'video';
+}
+
+export interface CreatePostModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onPostCreated?: () => void;
+}
+
+export interface ApiError {
+  message: string;
+}
+
 export interface CreatePostPayload {
   content: string;
-  image_url?: string;
+  originalPostId?: string;
+  attachments: UploadedAttachment[];
+}
+
+export interface PresignedUrlRequest {
+  filename: string;
+  mimeType: string;
+}
+
+export interface PresignedUrlResponse {
+  key: string;
+  url: string;
 }
 
 export interface Comment {

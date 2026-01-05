@@ -1,6 +1,11 @@
 import { httpClient } from '@/core/api/httpClient.api';
 import type { BaseResponse } from '@/core/types/api.type';
-import type { Post, CreatePostPayload } from '../types/post.type';
+import type {
+  Post,
+  CreatePostPayload,
+  PresignedUrlRequest,
+  PresignedUrlResponse,
+} from '../types/post.type';
 
 export const postApi = {
   getFeeds: (page = 1, limit = 20) => {
@@ -13,6 +18,12 @@ export const postApi = {
 
   createPost: (payload: CreatePostPayload) =>
     httpClient.post<BaseResponse<Post>>('/posts', payload),
+
+  getPresignedUrl: ({ filename, mimeType }: PresignedUrlRequest) =>
+    httpClient.post<BaseResponse<PresignedUrlResponse>>('/get-presigned-url', {
+      filename,
+      mimeType,
+    }),
 
   getUserById: (userId: string) =>
     httpClient.get<BaseResponse<{ name: string; avatarUrl: string }>>(
