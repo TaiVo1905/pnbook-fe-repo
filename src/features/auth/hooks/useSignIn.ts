@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signIn } from '@/features/auth/services/auth.api';
+import { authApi } from '@/features/auth/services/auth.api';
 import type { SignInPayload } from '@/features/auth/types/auth.type';
 
 export function useSignIn() {
@@ -13,7 +13,7 @@ export function useSignIn() {
     setSuccess(null);
 
     try {
-      const res = await signIn(payload);
+      const res = await authApi.signIn(payload);
 
       if (res.statusCode !== 200) {
         setError(res.message);

@@ -8,9 +8,9 @@ const MessagingPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className="h-full w-full bg-slate-50 p-4 lg:p-6">
-      <div className="mx-auto flex h-[calc(100vh-100px)] max-w-[1200px] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md">
-        <div className="flex w-[320px] flex-col border-r bg-white lg:w-[380px]">
+    <div className="h-full w-full bg-slate-50">
+      <div className="mx-auto flex h-[calc(100vh-100px)] max-w-[1000px] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md">
+        <div className="flex w-[250px] flex-col border-r bg-white lg:w-[300px]">
           <div className="border-b p-4">
             <div className="relative">
               <Search

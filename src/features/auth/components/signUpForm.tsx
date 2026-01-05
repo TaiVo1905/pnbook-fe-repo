@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Label } from '@/core/shadcn/components/ui/label';
@@ -38,13 +38,16 @@ export default function SignUpForm() {
   const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
 
-  const onSubmit = async (values: SignUpFormValues) => {
-    const isSuccess = await submit(values);
-    if (isSuccess) {
-      reset();
-      navigate('/sign-in');
-    }
-  };
+  const onSubmit = useCallback(
+    async (values: SignUpFormValues) => {
+      const isSuccess = await submit(values);
+      if (isSuccess) {
+        reset();
+        navigate('/sign-in');
+      }
+    },
+    [submit, reset, navigate]
+  );
 
   useEffect(() => {
     if (error || googleError) toast.error(error || googleError);

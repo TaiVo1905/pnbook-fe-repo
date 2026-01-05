@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Label } from '@/core/shadcn/components/ui/label';
 import { Button } from '@/core/shadcn/components/ui/button';
@@ -27,6 +27,7 @@ export default function SignInForm() {
   } = useGoogleSignIn();
 
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -37,10 +38,16 @@ export default function SignInForm() {
     resolver: zodResolver(signInSchema),
   });
 
-  const onSubmit = async (values: SignInFormValues) => {
-    const isSuccess = await submit(values);
-    if (isSuccess) reset();
-  };
+  const onSubmit = useCallback(
+    async (values: SignInFormValues) => {
+      const isSuccess = await submit(values);
+      if (isSuccess) {
+        reset();
+        navigate('/app/home');
+      }
+    },
+    [submit, reset, navigate]
+  );
 
   useEffect(() => {
     if (error || googleError) toast.error(error || googleError);
