@@ -1,4 +1,4 @@
-import SignInForm from '@/features/auth/components/SignInForm';
+import SignInForm from '@/features/auth/components/signInForm';
 import AuthLayout from '@/features/auth/layouts/AuthLayout';
 
 const SignInPage = () => {

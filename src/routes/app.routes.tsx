@@ -30,4 +30,13 @@ export const routes: RouteObject[] = [
       { path: '*', element: <NotFoundPage /> },
     ],
   },
+  {
+    path: '*',
+    element: <Navigate to="/sign-in" replace />,
+    children: [...friendsRoutes],
+  },
+  {
+    path: '*',
+    element: <Navigate to="/sign-in" replace />,
+  },
 ];
