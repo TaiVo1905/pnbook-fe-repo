@@ -7,11 +7,28 @@ import type { Post } from '../types/post.type';
 import { Button } from '@/core/shadcn/components/ui/button';
 import { ImageIcon } from 'lucide-react';
 import PostLayout from '../layouts/PostLayout';
+import { userApi, type UserProfile } from '@/core/api/user.api';
 
 export const FeedPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const response = await userApi.getCurrentUser();
+      if (response) {
+        setCurrentUser(response.data);
+      }
+    } catch {
+      toast.error('Failed to fetch current user');
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
 
   const fetchFeeds = useCallback(async () => {
     try {
@@ -44,7 +61,11 @@ export const FeedPage = () => {
           <div className="mb-4 flex items-center gap-3">
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border">
               <img
-                src="https://github.com/shadcn.png"
+                src={
+                  currentUser
+                    ? currentUser.avatarUrl
+                    : 'https://github.com/shadcn.png'
+                }
                 alt="User avatar"
                 className="h-full w-full object-cover"
               />
