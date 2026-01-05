@@ -34,8 +34,8 @@ export const FeedPage = () => {
                   },
                 };
               }
-            } catch (err: unknown) {
-              console.error(`Failed to fetch user ${post.posterId}`, err);
+            } catch (_err) {
+              toast.error('Failed to fetch user data for a post');
             }
 
             return post;
