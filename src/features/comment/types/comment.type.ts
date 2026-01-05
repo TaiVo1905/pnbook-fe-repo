@@ -7,6 +7,9 @@ export interface Comment {
   content: string;
   createdAt: string;
   commenter?: UserPreview;
+  _count?: {
+    replies: number;
+  };
 }
 
 export interface Reply {

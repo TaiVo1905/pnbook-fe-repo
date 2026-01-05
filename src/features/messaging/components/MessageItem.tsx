@@ -1,4 +1,3 @@
-import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { ChatImage } from './ChatImage';

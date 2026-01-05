@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface ChatHeaderProps {
   userName?: string;
   userAvatarUrl?: string;

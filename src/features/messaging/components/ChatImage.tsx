@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 
 interface ChatImageProps {

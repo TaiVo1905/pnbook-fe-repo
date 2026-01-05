@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const LoadingSkeleton = () => {
   return (
     <div className="flex flex-col gap-2 p-4">

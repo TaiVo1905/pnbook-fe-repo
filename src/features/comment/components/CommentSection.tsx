@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Button } from '@/core/shadcn/components/ui/button';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { CommentList } from '@/features/comment/components/CommentList';
@@ -25,9 +25,11 @@ export const CommentSection = memo(
       loadReplies,
     } = useComments(postId);
 
-    if (isOpen && comments.length === 0 && !loadingComments) {
-      fetchComments();
-    }
+    useEffect(() => {
+      if (isOpen && comments.length === 0 && !loadingComments) {
+        fetchComments();
+      }
+    }, [isOpen, fetchComments, comments.length, loadingComments]);
 
     const handleSubmitComment = async () => {
       const content = commentText.trim();
