@@ -1,33 +1,33 @@
 import { useState } from 'react';
-import { Search } from 'lucide-react';
 import { ContactList } from '../components/ContactList';
 import ChatWindow from '../components/ChatWindow';
+import { SearchBar } from '../components/SearchBar';
+import { EmptyState } from '../components/EmptyState';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 const MessagingPage = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedName, setSelectedName] = useState<string | undefined>(
+    undefined
+  );
+  const [selectedAvatar, setSelectedAvatar] = useState<string | undefined>(
+    undefined
+  );
   const [searchTerm, setSearchTerm] = useState('');
+  const { currentUserId } = useCurrentUser();
 
   return (
     <div className="h-full w-full bg-slate-50">
       <div className="mx-auto flex h-[calc(100vh-100px)] max-w-[1000px] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md">
         <div className="flex w-[250px] flex-col border-r bg-white lg:w-[300px]">
-          <div className="border-b p-4">
-            <div className="relative">
-              <Search
-                className="absolute top-2.5 left-3 text-gray-400"
-                size={18}
-              />
-              <input
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-full bg-[#f0f2f5] py-2 pr-4 pl-10 outline-none"
-                placeholder="Search conversations..."
-              />
-            </div>
-          </div>
+          <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
           <div className="flex-1 overflow-y-auto">
             <ContactList
-              onSelect={setSelectedId}
+              onSelect={({ id, name, avatarUrl }) => {
+                setSelectedId(id);
+                setSelectedName(name);
+                setSelectedAvatar(avatarUrl);
+              }}
               selectedId={selectedId}
               searchTerm={searchTerm}
             />
@@ -35,11 +35,14 @@ const MessagingPage = () => {
         </div>
         <div className="flex flex-1 flex-col">
           {selectedId ? (
-            <ChatWindow chatId={selectedId} />
+            <ChatWindow
+              chatId={selectedId}
+              userName={selectedName}
+              userAvatarUrl={selectedAvatar}
+              currentUserId={currentUserId}
+            />
           ) : (
-            <div className="flex flex-1 items-center justify-center text-gray-400">
-              Please choose a conversation.
-            </div>
+            <EmptyState />
           )}
         </div>
       </div>

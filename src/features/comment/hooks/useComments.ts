@@ -29,11 +29,8 @@ export const useComments = (postId: string) => {
               if (repliesRes.statusCode === 200) {
                 return { ...comment, replies: repliesRes.data || [] };
               }
-            } catch (err) {
-              console.error(
-                `Failed to fetch replies for comment ${comment.id}`,
-                err
-              );
+            } catch (_error) {
+              toast.error('Unable to load replies for a comment');
             }
             return { ...comment, replies: [] };
           })
@@ -42,8 +39,7 @@ export const useComments = (postId: string) => {
       } else {
         toast.error(response.message || 'Failed to load comments');
       }
-    } catch (error) {
-      console.error('Failed to fetch comments', error);
+    } catch (_error) {
       toast.error('Unable to load comments');
     } finally {
       setLoadingComments(false);
@@ -61,8 +57,7 @@ export const useComments = (postId: string) => {
           toast.error(response.message || 'Failed to post comment');
           return false;
         }
-      } catch (error) {
-        console.error('Failed to post comment', error);
+      } catch (_error) {
         toast.error('Unable to post comment');
         return false;
       }
@@ -90,8 +85,7 @@ export const useComments = (postId: string) => {
           toast.error(response.message || 'Failed to post reply');
           return false;
         }
-      } catch (error) {
-        console.error('Failed to post reply', error);
+      } catch (_error) {
         toast.error('Unable to post reply');
         return false;
       }
@@ -113,8 +107,7 @@ export const useComments = (postId: string) => {
       } else {
         toast.error(response.message || 'Failed to load replies');
       }
-    } catch (error) {
-      console.error('Failed to load replies', error);
+    } catch (_error) {
       toast.error('Unable to load replies');
     }
   }, []);

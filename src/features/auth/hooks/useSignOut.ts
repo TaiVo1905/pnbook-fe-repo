@@ -24,8 +24,7 @@ export function useSignOut() {
       }
 
       navigate('/sign-in');
-    } catch (error) {
-      console.error('Sign out error:', error);
+    } catch (_error) {
       toast.error('Error signing out');
     } finally {
       setLoading(false);

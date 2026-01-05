@@ -10,16 +10,17 @@ export interface Message {
   senderId: string;
   receiverId: string;
   content: string;
-  timestamp: string;
+  timestamp?: string;
   createdAt: string;
   isMe?: boolean;
   imageUrl?: string;
+  status?: 'sent' | 'delivered' | 'read';
 }
 
 export interface Conversation {
   id: string;
   user: User;
-  lastMessage: string;
+  lastMessage: Message;
   content: string;
   unreadCount: number;
   lastMessageAt: string;
@@ -34,5 +35,6 @@ export interface MessagingResponse<T> {
     currentPage: number;
     limit: number;
     totalItems: number;
+    totalPages: number;
   };
 }

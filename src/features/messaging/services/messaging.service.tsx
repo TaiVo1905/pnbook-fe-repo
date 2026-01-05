@@ -4,7 +4,7 @@ import type {
   Conversation,
 } from '../types/messaging.type';
 
-const API_URL = 'https://pn-book-bj6tn.ondigitalocean.app/api/v1';
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const getConversationList = async (): Promise<
   MessagingResponse<Conversation[]>
@@ -68,4 +68,13 @@ export const uploadMedia = async (file: File): Promise<string> => {
 
   if (!uploadRes.ok) throw new Error('Upload failed');
   return key;
+};
+
+export const markAsRead = async (receiverId: string): Promise<void> => {
+  await fetch(`${API_URL}/messages/mark-as-read`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ receiverId }),
+  });
 };

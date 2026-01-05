@@ -1,12 +1,8 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   getMessagesByConversationId,
   markAsRead,
 } from '../services/messaging.service';
-import {
-  subscribeToMessages,
-  getConversationId,
-} from '../../../shared/services/firestore.service';
 import type { Message, MessagingResponse } from '../types/messaging.type';
 
 const LIMIT = 50;
@@ -16,13 +12,20 @@ const sortByCreatedAtAsc = (list: Message[]) =>
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
 
-export const useMessaging = (receiverId: string, currentUserId?: string) => {
+interface UseMessageListProps {
+  receiverId: string;
+  currentUserId?: string;
+}
+
+export const useMessageList = ({
+  receiverId,
+  currentUserId,
+}: UseMessageListProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const unsubscribeRef = useRef<(() => void) | null>(null);
 
   const withIsMe = (data: Message[]): Message[] =>
     data.map((msg) => ({
@@ -31,6 +34,7 @@ export const useMessaging = (receiverId: string, currentUserId?: string) => {
         ? String(msg.senderId) === String(currentUserId)
         : String(msg.senderId) !== String(receiverId),
     }));
+
   const fetchLatest = useCallback(async () => {
     if (!receiverId) return;
     setIsLoading(true);
@@ -57,7 +61,7 @@ export const useMessaging = (receiverId: string, currentUserId?: string) => {
     } finally {
       setIsLoading(false);
     }
-  }, [receiverId]);
+  }, [receiverId, currentUserId]);
 
   const fetchMore = useCallback(async () => {
     if (!receiverId || isFetchingMore || isLoading) return;
@@ -77,64 +81,41 @@ export const useMessaging = (receiverId: string, currentUserId?: string) => {
     } finally {
       setIsFetchingMore(false);
     }
-  }, [receiverId, currentPage, totalPages, isFetchingMore, isLoading]);
+  }, [
+    receiverId,
+    currentPage,
+    totalPages,
+    isFetchingMore,
+    isLoading,
+    currentUserId,
+  ]);
+
+  const addMessage = useCallback(
+    (msg: Message) => {
+      setMessages((prev) => {
+        const exists = prev.some((m) => m.id === msg.id);
+        if (exists) return prev;
+        return sortByCreatedAtAsc([
+          ...prev,
+          {
+            ...msg,
+            isMe: currentUserId
+              ? String(msg.senderId) === String(currentUserId)
+              : true,
+          },
+        ]);
+      });
+    },
+    [currentUserId]
+  );
 
   useEffect(() => {
     fetchLatest();
+  }, [fetchLatest]);
 
-    if (currentUserId && receiverId) {
-      const conversationId = getConversationId(currentUserId, receiverId);
-
-      unsubscribeRef.current = subscribeToMessages(
-        conversationId,
-        (newMessage) => {
-          setMessages((prev) => {
-            const exists = prev.some(
-              (m) =>
-                m.id === newMessage.id ||
-                (m.createdAt === newMessage.createdAt &&
-                  m.senderId === newMessage.senderId &&
-                  m.content === newMessage.content)
-            );
-            if (exists) return prev;
-            const messageWithFlag = {
-              ...newMessage,
-              isMe: currentUserId
-                ? String(newMessage.senderId) === String(currentUserId)
-                : String(newMessage.senderId) !== String(receiverId),
-            };
-
-            return sortByCreatedAtAsc([...prev, messageWithFlag]);
-          });
-        },
-        (_error) => {}
-      );
-    }
-    return () => {
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-    };
-  }, [fetchLatest, currentUserId, receiverId]);
-
-  const addMessage = (msg: Message) => {
-    setMessages((prev) => {
-      const exists = prev.some((m) => m.id === msg.id);
-      if (exists) return prev;
-      return sortByCreatedAtAsc([
-        ...prev,
-        {
-          ...msg,
-          isMe: currentUserId
-            ? String(msg.senderId) === String(currentUserId)
-            : true,
-        },
-      ]);
-    });
-  };
   return {
     messages,
+    setMessages,
     isLoading,
     isFetchingMore,
     hasMore: currentPage < totalPages,
