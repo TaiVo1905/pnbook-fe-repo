@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { Button } from '@/core/shadcn/components/ui/button';
 import { postApi } from '../services/post.api';
@@ -6,21 +6,42 @@ import { toast } from 'sonner';
 import { FileUploadButton } from './FileUploadButton';
 import { AttachmentPreview } from './AttachmentPreview';
 import type {
-  ApiError,
+  Attachment,
   CreatePostAttachment,
-  CreatePostModalProps,
-  CreatePostPayload,
   UploadedAttachment,
 } from '../types/post.type';
 
-export const CreatePostModal = ({
+interface EditPostModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  postId: string;
+  initialContent: string;
+  initialAttachments: Attachment[];
+  onUpdated: (payload: { content: string; attachments: Attachment[] }) => void;
+}
+
+export const EditPostModal = ({
   isOpen,
   onClose,
-  onPostCreated,
-}: CreatePostModalProps) => {
-  const [text, setText] = useState('');
+  postId,
+  initialContent,
+  initialAttachments,
+  onUpdated,
+}: EditPostModalProps) => {
+  const [text, setText] = useState(initialContent);
   const [attachments, setAttachments] = useState<CreatePostAttachment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setText(initialContent);
+    setAttachments(
+      initialAttachments.map((a) => ({
+        key: a.id,
+        attachmentUrl: a.attachmentUrl,
+        type: a.attachmentType,
+      }))
+    );
+  }, [initialContent, initialAttachments]);
 
   const handleFilesSelected = useCallback((files: File[]) => {
     setAttachments((prev) => [
@@ -29,7 +50,6 @@ export const CreatePostModal = ({
         const isVideo = file.type.startsWith('video/');
         const isAudio = file.type.startsWith('audio/');
         const attachmentUrl = URL.createObjectURL(file);
-
         return {
           key: crypto.randomUUID(),
           attachmentUrl,
@@ -44,7 +64,7 @@ export const CreatePostModal = ({
   const removeAttachment = useCallback((key: string) => {
     setAttachments((prev) => {
       const target = prev.find((item) => item.key === key);
-      if (target?.attachmentUrl) {
+      if (target?.attachmentUrl?.startsWith('blob:')) {
         URL.revokeObjectURL(target.attachmentUrl);
       }
       return prev.filter((item) => item.key !== key);
@@ -72,22 +92,16 @@ export const CreatePostModal = ({
         });
 
         const { key, url } = response.data;
-
         const uploadRes = await fetch(url, {
           method: 'PUT',
-          headers: {
-            'Content-Type': attachment.mimeType,
-          },
+          headers: { 'Content-Type': attachment.mimeType },
           body: attachment.file,
         });
-
-        if (!uploadRes.ok) {
+        if (!uploadRes.ok)
           throw new Error(`Failed to upload ${attachment.file.name}`);
-        }
 
         const s3BaseUrl = import.meta.env.VITE_S3_BASE_URL;
         const uploadedUrl = `${s3BaseUrl}/${key}`;
-
         return {
           key,
           attachmentUrl: uploadedUrl,
@@ -97,70 +111,53 @@ export const CreatePostModal = ({
     );
   }, [attachments]);
 
-  const handlePost = useCallback(async () => {
+  const handleUpdate = useCallback(async () => {
     if (!text.trim() && attachments.length === 0) return;
-
     setIsSubmitting(true);
     try {
-      const uploadedAttachments = await uploadAttachments();
-
-      const payload: CreatePostPayload = {
+      const uploaded = await uploadAttachments();
+      const res = await postApi.updatePost(postId, {
         content: text,
-        attachments: uploadedAttachments,
-      };
-
-      const res = await postApi.createPost(payload);
-
-      if (res.statusCode === 201 || res.statusCode === 200) {
-        toast.success('Post published successfully!');
-        setText('');
+        attachments: uploaded,
+      });
+      if (res.statusCode === 200) {
+        toast.success('Post updated');
+        const updated = res.data;
+        onUpdated({
+          content: updated.content,
+          attachments: updated.attachments || [],
+        });
         setAttachments((prev) => {
           prev.forEach((item) => {
-            if (item.attachmentUrl) {
+            if (item.attachmentUrl?.startsWith('blob:'))
               URL.revokeObjectURL(item.attachmentUrl);
-            }
           });
-          return [];
+          return prev;
         });
         onClose();
-        onPostCreated?.();
       } else {
-        toast.error(res.message);
+        toast.error(res.message || 'Failed to update post');
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-        return;
-      }
-
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'message' in error &&
-        typeof (error as ApiError).message === 'string'
-      ) {
-        toast.error((error as ApiError).message);
-        return;
-      }
-
-      toast.error('System error');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to update post'
+      );
     } finally {
       setIsSubmitting(false);
     }
-  }, [text, attachments, uploadAttachments, onClose, onPostCreated]);
+  }, [attachments, onClose, onUpdated, postId, text, uploadAttachments]);
 
-  if (!isOpen) {
-    return null;
-  }
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <div className="animate-in zoom-in-95 dark:bg-card w-full max-w-[500px] overflow-hidden rounded-xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b p-4">
-          <h2 className="text-lg font-bold">Create post</h2>
+          <h2 className="text-lg font-bold">Edit post</h2>
           <button
             onClick={onClose}
             className="text-muted-foreground hover:bg-accent cursor-pointer rounded-full p-1"
+            disabled={isSubmitting}
           >
             <X size={20} />
           </button>
@@ -168,7 +165,7 @@ export const CreatePostModal = ({
 
         <div className="max-h-[80vh] space-y-4 overflow-y-auto p-4">
           <textarea
-            placeholder="What's on your mind?"
+            placeholder="Update your post"
             value={text}
             onChange={(e) => setText(e.target.value)}
             className="min-h-[120px] w-full resize-none border-none bg-transparent text-lg outline-none"
@@ -182,11 +179,12 @@ export const CreatePostModal = ({
 
           <FileUploadButton
             onFilesSelected={handleFilesSelected}
+            label="Add media"
             disabled={isSubmitting}
           />
 
           <Button
-            onClick={handlePost}
+            onClick={handleUpdate}
             disabled={
               (!text.trim() && attachments.length === 0) || isSubmitting
             }
@@ -195,7 +193,7 @@ export const CreatePostModal = ({
             {isSubmitting ? (
               <Loader2 className="animate-spin" size={20} />
             ) : (
-              'Post'
+              'Save changes'
             )}
           </Button>
         </div>

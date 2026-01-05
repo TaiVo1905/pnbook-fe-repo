@@ -43,18 +43,29 @@ export const ImageGallery = memo(({ attachments }: ImageGalleryProps) => {
 
   const renderMedia = (item: Attachment, index: number, className?: string) => {
     const isVideo = item.attachmentType === 'video';
+    const isAudio = item.attachmentType === 'audio';
+    const clickable = item.attachmentType === 'image';
 
     return (
       <div
         key={item.id}
-        className={cn('relative cursor-pointer overflow-hidden', className)}
-        onClick={() => handleOpenLightbox(index)}
+        className={cn(
+          'relative overflow-hidden',
+          clickable ? 'cursor-pointer' : 'cursor-default',
+          className
+        )}
+        onClick={clickable ? () => handleOpenLightbox(index) : undefined}
       >
         {isVideo ? (
           <video
             src={item.attachmentUrl}
             className="h-full w-full object-cover"
+            controls
           />
+        ) : isAudio ? (
+          <div className="flex h-full w-full items-center justify-center bg-gray-100 p-4">
+            <audio src={item.attachmentUrl} controls className="w-full" />
+          </div>
         ) : (
           <img
             src={item.attachmentUrl}

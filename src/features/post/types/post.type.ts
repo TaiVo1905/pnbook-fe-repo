@@ -9,7 +9,7 @@ export interface Attachment {
   id: string;
   postId: string;
   attachmentUrl: string;
-  attachmentType: 'image' | 'video';
+  attachmentType: 'image' | 'video' | 'audio';
   createdAt: string;
   deletedAt: string | null;
 }
@@ -20,10 +20,13 @@ export interface Post {
   content: string;
   originalPostId: string | null;
   reactionCount: number;
+  reacted?: boolean;
+  isReacted?: boolean;
   createdAt: string;
   deletedAt: string | null;
   attachments: Attachment[];
   poster: UserPreview;
+  originalPost?: Omit<Post, 'originalPost'>;
   _count: {
     comments: number;
     shares: number;
@@ -32,16 +35,22 @@ export interface Post {
 
 export interface CreatePostAttachment {
   key: string;
-  attachmentUrl: string;
-  type: 'image' | 'video';
+  attachmentUrl?: string;
+  type: 'image' | 'video' | 'audio';
   file?: File;
   mimeType?: string;
 }
 
 export interface UploadedAttachment {
   key: string;
-  attachmentUrl: string;
-  type: 'image' | 'video';
+  attachmentUrl?: string;
+  type: 'image' | 'video' | 'audio';
+}
+
+export interface UpdatePostPayload {
+  content: string;
+  attachments?: UploadedAttachment[];
+  originalPostId?: string | null;
 }
 
 export interface CreatePostModalProps {
@@ -57,7 +66,7 @@ export interface ApiError {
 export interface CreatePostPayload {
   content: string;
   originalPostId?: string;
-  attachments: UploadedAttachment[];
+  attachments?: UploadedAttachment[];
 }
 
 export interface PresignedUrlRequest {
