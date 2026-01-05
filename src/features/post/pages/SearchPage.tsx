@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { postApi } from '../services/post.api';
 import {
@@ -23,25 +23,26 @@ export const SearchPage = () => {
   const [results, setResults] = useState<UserSearch[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchResults = async () => {
-      if (!keyword) return;
-      setLoading(true);
-      try {
-        const response = await postApi.searchUsers(keyword);
-        if (response.statusCode === 200) {
-          setResults(response.data);
-        } else {
-          toast.error(response.message || 'Search failed');
-        }
-      } catch {
-        toast.error('Server connection error');
-      } finally {
-        setLoading(false);
+  const fetchResults = useCallback(async () => {
+    if (!keyword) return;
+    setLoading(true);
+    try {
+      const response = await postApi.searchUsers(keyword);
+      if (response.statusCode === 200) {
+        setResults(response.data);
+      } else {
+        toast.error(response.message || 'Search failed');
       }
-    };
-    fetchResults();
+    } catch {
+      toast.error('Server connection error');
+    } finally {
+      setLoading(false);
+    }
   }, [keyword]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults]);
 
   return (
     <PostLayout>

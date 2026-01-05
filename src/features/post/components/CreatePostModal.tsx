@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import type { ChangeEvent } from 'react';
 import { X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/core/shadcn/components/ui/button';
@@ -22,9 +22,7 @@ export const CreatePostModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!isOpen) return null;
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
     if (!files || files.length === 0) return;
@@ -50,9 +48,9 @@ export const CreatePostModal = ({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  };
+  }, []);
 
-  const removeAttachment = (key: string) => {
+  const removeAttachment = useCallback((key: string) => {
     setAttachments((prev) => {
       const target = prev.find((item) => item.key === key);
       if (target) {
@@ -60,9 +58,11 @@ export const CreatePostModal = ({
       }
       return prev.filter((item) => item.key !== key);
     });
-  };
+  }, []);
 
-  const uploadAttachments = async (): Promise<UploadedAttachment[]> => {
+  const uploadAttachments = useCallback(async (): Promise<
+    UploadedAttachment[]
+  > => {
     if (attachments.length === 0) return [];
 
     return Promise.all(
@@ -104,9 +104,9 @@ export const CreatePostModal = ({
         } satisfies UploadedAttachment;
       })
     );
-  };
+  }, [attachments]);
 
-  const handlePost = async () => {
+  const handlePost = useCallback(async () => {
     if (!text.trim() && attachments.length === 0) return;
 
     setIsSubmitting(true);
@@ -152,7 +152,11 @@ export const CreatePostModal = ({
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [text, attachments, uploadAttachments, onClose, onPostCreated]);
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
