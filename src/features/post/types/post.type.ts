@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
+import type { UserPreview } from '@/shared/types/user.type';
 
 export interface PostLayoutProps {
   children?: ReactNode;
@@ -19,13 +20,12 @@ export interface Post {
   content: string;
   originalPostId: string | null;
   reactionCount: number;
+  commentCount?: number;
+  shareCount?: number;
   createdAt: string;
   deletedAt: string | null;
   attachments: Attachment[];
-  user?: {
-    name: string;
-    avatar: string;
-  };
+  user?: UserPreview;
 }
 
 export interface CreatePostAttachment {
@@ -66,21 +66,6 @@ export interface PresignedUrlRequest {
 export interface PresignedUrlResponse {
   key: string;
   url: string;
-}
-
-export interface Comment {
-  id: string;
-  postId: string;
-  userId: string;
-  content: string;
-  createdAt: string;
-}
-
-export interface Reply {
-  id: string;
-  commentId: string;
-  userId: string;
-  content: string;
 }
 
 export interface SidebarItemProps {

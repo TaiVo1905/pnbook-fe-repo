@@ -30,7 +30,7 @@ export const FeedPage = () => {
                   ...post,
                   user: {
                     name: userRes.data.name,
-                    avatar: userRes.data.avatarUrl,
+                    avatarUrl: userRes.data.avatarUrl,
                   },
                 };
               }
@@ -75,7 +75,7 @@ export const FeedPage = () => {
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-border/50 text-muted-foreground hover:bg-border flex-1 rounded-full px-5 py-2.5 text-left transition-colors"
+              className="bg-border/50 text-muted-foreground hover:bg-border flex-1 cursor-pointer rounded-full px-5 py-2.5 text-left transition-colors"
             >
               What do you think?
             </button>
