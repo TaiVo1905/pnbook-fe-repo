@@ -1,4 +1,3 @@
-import React from 'react';
 import { useScrollManagement } from '../hooks/useScrollManagement';
 import { useMessageActions } from '../hooks/useMessageActions';
 import { useMessageList } from '../hooks/useMessageList';

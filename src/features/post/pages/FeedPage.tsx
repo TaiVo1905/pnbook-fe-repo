@@ -13,36 +13,12 @@ export const FeedPage = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchFeedsAndUsers = useCallback(async () => {
+  const fetchFeeds = useCallback(async () => {
     try {
       const response = await postApi.getFeeds();
 
       if (response && response.statusCode === 200) {
-        const feedData = response.data;
-
-        const postsWithUserData = await Promise.all(
-          feedData.map(async (post: Post) => {
-            try {
-              const userRes = await postApi.getUserById(post.posterId);
-
-              if (userRes && userRes.statusCode === 200) {
-                return {
-                  ...post,
-                  user: {
-                    name: userRes.data.name,
-                    avatarUrl: userRes.data.avatarUrl,
-                  },
-                };
-              }
-            } catch (_err) {
-              toast.error('Failed to fetch user data for a post');
-            }
-
-            return post;
-          })
-        );
-
-        setPosts(postsWithUserData);
+        setPosts(response.data);
       } else {
         toast.error(response.message || 'Failed to fetch feeds');
       }
@@ -54,8 +30,8 @@ export const FeedPage = () => {
   }, []);
 
   useEffect(() => {
-    fetchFeedsAndUsers();
-  }, [fetchFeedsAndUsers]);
+    fetchFeeds();
+  }, [fetchFeeds]);
 
   if (loading) {
     return <div className="py-10 text-center">Loading feeds...</div>;
@@ -106,7 +82,7 @@ export const FeedPage = () => {
         <CreatePostModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onPostCreated={fetchFeedsAndUsers}
+          onPostCreated={fetchFeeds}
         />
       </div>
     </PostLayout>

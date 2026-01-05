@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/core/shadcn/components/ui/button';
 import { Input } from '@/core/shadcn/components/ui/input';
@@ -48,7 +48,7 @@ export const CommentItem = memo(
     const [submitting, setSubmitting] = useState(false);
     const [showReplies, setShowReplies] = useState(false);
     const [loadingReplies, setLoadingReplies] = useState(false);
-    const replies = useMemo(() => comment.replies || [], [comment.replies]);
+    const replyCount = comment._count?.replies ?? comment.replies?.length ?? 0;
 
     const handleReply = async () => {
       const text = replyText.trim();
@@ -105,7 +105,7 @@ export const CommentItem = memo(
               >
                 Reply
               </button>
-              {replies.length > 0 && (
+              {replyCount > 0 && (
                 <button
                   className="hover:text-foreground cursor-pointer font-medium transition-colors"
                   onClick={handleLoadReplies}
@@ -115,7 +115,7 @@ export const CommentItem = memo(
                     ? 'Loading...'
                     : showReplies
                       ? 'Hide replies'
-                      : `View ${replies.length} ${replies.length === 1 ? 'reply' : 'replies'}`}
+                      : `View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}
                 </button>
               )}
             </div>
@@ -141,10 +141,10 @@ export const CommentItem = memo(
           </div>
         </div>
 
-        {showReplies && replies.length > 0 && (
+        {showReplies && comment.replies && comment.replies.length > 0 && (
           <div className="border-l pl-6">
             <div className="space-y-3">
-              {replies.map((reply) => (
+              {comment.replies.map((reply) => (
                 <ReplyItem key={reply.id} reply={reply} />
               ))}
             </div>

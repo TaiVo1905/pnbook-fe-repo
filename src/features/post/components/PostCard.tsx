@@ -8,17 +8,17 @@ import { useComments } from '@/features/comment/hooks/useComments';
 
 export const PostCard = memo(({ post }: { post: Post }) => {
   const [isCommentSectionOpen, setIsCommentSectionOpen] = useState(false);
-  const { comments, fetchComments } = useComments(post.id);
+  const { fetchComments } = useComments(post.id);
 
   useEffect(() => {
-    if (isCommentSectionOpen || comments.length === 0) {
+    if (isCommentSectionOpen) {
       fetchComments();
     }
-  }, [isCommentSectionOpen, comments.length, fetchComments]);
+  }, [isCommentSectionOpen, fetchComments]);
 
   return (
     <div className="bg-card overflow-hidden rounded-xl border shadow-sm">
-      <PostHeader user={post.user} createdAt={post.createdAt} />
+      <PostHeader poster={post.poster} createdAt={post.createdAt} />
 
       <div className="px-4 pb-4">
         <p className="mb-4 text-[15px]">{post.content}</p>
@@ -27,15 +27,15 @@ export const PostCard = memo(({ post }: { post: Post }) => {
 
       <PostActions
         likeCount={post.reactionCount}
-        commentCount={comments.length}
-        shareCount={post.shareCount}
+        commentCount={post._count.comments}
+        shareCount={post._count.shares}
         onCommentClick={() => setIsCommentSectionOpen((prev) => !prev)}
       />
 
       {isCommentSectionOpen && (
         <CommentSection
           postId={post.id}
-          currentUser={post.user}
+          currentUser={post.poster}
           isOpen={isCommentSectionOpen}
         />
       )}

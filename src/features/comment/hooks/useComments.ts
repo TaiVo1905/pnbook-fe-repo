@@ -22,19 +22,14 @@ export const useComments = (postId: string) => {
       const response = await commentApi.getComments(postId);
       if (response.statusCode === 200) {
         const commentsData = response.data || [];
-        const commentsWithReplies = await Promise.all(
-          commentsData.map(async (comment) => {
-            try {
-              const repliesRes = await commentApi.getReplies(comment.id);
-              if (repliesRes.statusCode === 200) {
-                return { ...comment, replies: repliesRes.data || [] };
-              }
-            } catch (_error) {
-              toast.error('Unable to load replies for a comment');
-            }
-            return { ...comment, replies: [] };
-          })
-        );
+        // Don't fetch replies here - load on demand
+        const commentsWithReplies = commentsData.map((comment) => ({
+          ...comment,
+          replies: comment.replies || [],
+          _count: comment._count || {
+            replies: comment.replies?.length || 0,
+          },
+        }));
         setComments(commentsWithReplies);
       } else {
         toast.error(response.message || 'Failed to load comments');
@@ -51,7 +46,14 @@ export const useComments = (postId: string) => {
       try {
         const response = await commentApi.createComment(postId, content);
         if (response.statusCode === 200 || response.statusCode === 201) {
-          setComments((prev) => [{ ...response.data, replies: [] }, ...prev]);
+          setComments((prev) => [
+            {
+              ...response.data,
+              replies: [],
+              _count: { replies: 0 },
+            },
+            ...prev,
+          ]);
           return true;
         } else {
           toast.error(response.message || 'Failed to post comment');
@@ -76,6 +78,9 @@ export const useComments = (postId: string) => {
                 ? {
                     ...comment,
                     replies: [response.data, ...(comment.replies || [])],
+                    _count: {
+                      replies: (comment._count?.replies || 0) + 1,
+                    },
                   }
                 : comment
             )

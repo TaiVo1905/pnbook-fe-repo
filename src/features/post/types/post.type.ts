@@ -20,12 +20,14 @@ export interface Post {
   content: string;
   originalPostId: string | null;
   reactionCount: number;
-  commentCount?: number;
-  shareCount?: number;
   createdAt: string;
   deletedAt: string | null;
   attachments: Attachment[];
-  user?: UserPreview;
+  poster: UserPreview;
+  _count: {
+    comments: number;
+    shares: number;
+  };
 }
 
 export interface CreatePostAttachment {
