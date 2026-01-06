@@ -11,6 +11,14 @@ import type {
   UploadedAttachment,
 } from '../types/post.type';
 
+const generateUUID = (): string => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 interface EditPostModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -51,7 +59,7 @@ export const EditPostModal = ({
         const isAudio = file.type.startsWith('audio/');
         const attachmentUrl = URL.createObjectURL(file);
         return {
-          key: self.crypto.randomUUID(),
+          key: generateUUID(),
           attachmentUrl,
           type: isVideo ? 'video' : isAudio ? 'audio' : 'image',
           file,
