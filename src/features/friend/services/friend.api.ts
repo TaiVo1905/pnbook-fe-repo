@@ -1,6 +1,11 @@
+import { httpClient } from '@/core/api/httpClient.api';
+import type { BaseResponse } from '@/core/types/api.type';
 import type {
+  UserInfo,
+  Friend,
   FriendRequest,
-  FriendApiResponse,
+  SendFriendRequestPayload,
+  RemoveFriendPayload,
 } from '@/features/friend/types/friends.type';
 
 export async function getFriendSuggestions(

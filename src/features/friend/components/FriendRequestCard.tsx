@@ -5,8 +5,7 @@ import type { FriendRequest } from '@/features/friend/types/friends.type';
 
 interface FriendRequestCardProps {
   request: FriendRequest;
-  onSend: (userId: string) => void;
-  onCancel: (userId: string) => void;
+  onAction: (userId: string, status: 'pending' | 'idle') => void;
   isLoading?: boolean;
 }
 

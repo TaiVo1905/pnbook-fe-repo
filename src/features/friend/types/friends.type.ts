@@ -1,17 +1,17 @@
-export type FriendRequestStatus = 'pending' | 'accepted' | 'cancelled';
+export type FriendRequestStatus = 'idle' | 'pending' | 'accepted' | 'cancelled';
 
 export interface UserInfo {
   id: string;
   name: string;
   title?: string;
-  avatar?: string;
+  avatarUrl?: string;
   initials?: string;
 }
 
 export interface FriendRequest {
   id: string;
-  sender: UserInfo;
-  receiver: UserInfo;
+  requester: UserInfo;
+  addressee: UserInfo;
   status: FriendRequestStatus;
   createdAt: string;
   updatedAt?: string;
@@ -19,10 +19,20 @@ export interface FriendRequest {
 
 export interface Friend {
   id: string;
-  user: UserInfo;
+  friendId: string;
+  userId: string;
+  friend: UserInfo;
+  status: 'accepted' | 'block';
   connectedAt: string;
 }
 
+export interface SendFriendRequestPayload {
+  friendId: string;
+}
+
+export interface RemoveFriendPayload {
+  friendId: string;
+}
 export interface FriendApiResponse<T> {
   statusCode: number;
   message: string;
