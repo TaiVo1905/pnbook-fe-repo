@@ -23,15 +23,14 @@ export const routes: RouteObject[] = [
         path: 'home',
         children: [...postRoutes, { path: 'search', element: <SearchPage /> }],
       },
+      ...friendsRoutes,
+
       { path: 'notifications', element: <NotFoundPage /> },
       { path: 'friends', element: <NotFoundPage /> },
       { path: 'messages', element: <NotFoundPage /> },
       { path: 'profile', element: <NotFoundPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
-  },
-  { path: '*', element: <Navigate to="/sign-in" replace /> },
-    children: [...friendsRoutes],
   },
   {
     path: '*',

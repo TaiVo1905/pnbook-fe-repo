@@ -1,85 +1,75 @@
+import { httpClient } from '@/core/api/httpClient.api';
+import type { BaseResponse } from '@/core/types/api.type';
 import type {
+  UserInfo,
+  Friend,
   FriendRequest,
-  FriendApiResponse,
+  SendFriendRequestPayload,
+  RemoveFriendPayload,
 } from '@/features/friend/types/friends.type';
 
-export async function getFriendSuggestions(
-  page = 1,
-  limit = 20
-): Promise<FriendApiResponse<FriendRequest[]>> {
-  try {
-    const res = await fetch(
-      `https://pn-book-bj6tn.ondigitalocean.app/api/v1/friendships?page=${page}&limit=${limit}`,
-      {
-        method: 'GET',
-        credentials: 'include',
-      }
+export const friendApi = {
+  getUserById: (userId: string) =>
+    httpClient.get<BaseResponse<{ name: string; avatarUrl: string }>>(
+      `/users/${userId}`
+    ),
+
+  getAllUsers: () => httpClient.get<UserInfo[]>(`/users`),
+
+  getFriendRequests: (page = 1, limit = 20) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    return httpClient.get<BaseResponse<FriendRequest[]>>(
+      `/friendships/requests?${params}`
     );
+  },
 
-    if (!res.ok) {
-      return {
-        statusCode: res.status,
-        message: 'Failed to fetch friend suggestions',
-        timeStamp: new Date().toISOString(),
-      };
-    }
+  sendFriendRequest: (payload: SendFriendRequestPayload) => {
+    return httpClient.post<BaseResponse<null>>('/friendships', payload);
+  },
 
-    const data: FriendRequest[] = await res.json();
+  getFriends: (page = 1, limit = 20) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    return httpClient.get<BaseResponse<Friend[]>>(`/friendships?${params}`);
+  },
 
-    return {
-      statusCode: res.status,
-      message: 'Get friend suggestions success',
-      timeStamp: new Date().toISOString(),
-      data,
-    };
-  } catch {
-    return {
-      statusCode: 500,
-      message: 'Network error when fetching friend suggestions',
-      timeStamp: new Date().toISOString(),
-    };
-  }
-}
+  updateFriendStatus: (friendId: string, status: 'accepted' | 'block') => {
+    return httpClient.patch<BaseResponse<null>>(`/friendships/${friendId}`, {
+      status: status,
+    });
+  },
 
-export interface SendFriendRequestPayload {
-  friendId: string;
-}
+  unFriend: (friendId: string) => {
+    return httpClient.delete<BaseResponse<null>>(`/friendships/${friendId}`);
+  },
 
-export async function postSendFriendRequest(
-  payload: SendFriendRequestPayload
-): Promise<FriendApiResponse<null>> {
-  try {
-    const res = await fetch(
-      'https://pn-book-bj6tn.ondigitalocean.app/api/v1/friendships',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      }
+  getIncomingRequests: (page = 1, limit = 20) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    return httpClient.get<BaseResponse<FriendRequest[]>>(
+      `/friendships/requests?${params}`
     );
+  },
 
-    if (!res.ok) {
-      return {
-        statusCode: res.status,
-        message: 'Send friend request failed',
-        timeStamp: new Date().toISOString(),
-      };
-    }
+  acceptRequest: (requesterId: string) => {
+    return httpClient.patch<BaseResponse<null>>(
+      `/friendships/requests/${requesterId}/accept`,
+      {}
+    );
+  },
 
-    return {
-      statusCode: res.status,
-      message: 'Send friend request success',
-      timeStamp: new Date().toISOString(),
-      data: null,
-    };
-  } catch {
-    return {
-      statusCode: 500,
-      message: 'Network error when sending friend request',
-      timeStamp: new Date().toISOString(),
-    };
-  }
-}
+  rejectRequest: (requesterId: string) => {
+    return httpClient.delete<BaseResponse<null>>(
+      `/friendships/requests/${requesterId}`
+    );
+  },
+};
+
+export type { SendFriendRequestPayload, RemoveFriendPayload };
