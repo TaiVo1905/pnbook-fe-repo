@@ -31,7 +31,7 @@ export const CreatePostModal = ({
         const attachmentUrl = URL.createObjectURL(file);
 
         return {
-          key: crypto.randomUUID(),
+          key: self.crypto.randomUUID(),
           attachmentUrl,
           type: isVideo ? 'video' : isAudio ? 'audio' : 'image',
           file,
