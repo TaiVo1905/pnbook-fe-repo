@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image as ImageIcon, SendHorizontal, Loader2 } from 'lucide-react';
+import { IconButton } from '@/shared/components/IconButton';
 
 interface ChatInputProps {
   input: string;
@@ -18,12 +19,18 @@ export const ChatInput = ({
 }: ChatInputProps) => {
   return (
     <div className="flex items-center gap-3 border-t bg-white p-4">
-      <label className="cursor-pointer rounded-full p-2 text-blue-500 transition-colors hover:bg-gray-100">
-        {isUploading ? (
-          <Loader2 className="animate-spin" size={22} />
-        ) : (
-          <ImageIcon size={22} />
-        )}
+      <label className="cursor-pointer">
+        <IconButton
+          variant="default"
+          className="text-blue-500"
+          disabled={isUploading}
+        >
+          {isUploading ? (
+            <Loader2 className="animate-spin" size={22} />
+          ) : (
+            <ImageIcon size={22} />
+          )}
+        </IconButton>
         <input
           type="file"
           className="hidden"
@@ -36,16 +43,17 @@ export const ChatInput = ({
         value={input}
         onChange={(e) => onInputChange(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && onSendText()}
-        className="flex-1 rounded-full bg-gray-100 px-4 py-2 transition-all outline-none focus:ring-2 focus:ring-blue-400/50"
+        className="flex-1 rounded-full bg-gray-100 px-4 py-2 transition-all outline-none"
         placeholder="Type a message..."
       />
-      <button
+      <IconButton
         onClick={onSendText}
-        className="rounded-full p-2 text-blue-600 transition-colors hover:bg-blue-50 disabled:opacity-30"
+        className="text-blue-600"
         disabled={!input.trim()}
+        variant="default"
       >
         <SendHorizontal size={22} />
-      </button>
+      </IconButton>
     </div>
   );
 };

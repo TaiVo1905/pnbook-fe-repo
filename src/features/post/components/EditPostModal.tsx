@@ -1,23 +1,21 @@
 import { useState, useCallback, useEffect } from 'react';
-import { X, Loader2 } from 'lucide-react';
-import { Button } from '@/core/shadcn/components/ui/button';
+import { X } from 'lucide-react';
 import { postApi } from '../services/post.api';
 import { toast } from 'sonner';
 import { FileUploadButton } from './FileUploadButton';
 import { AttachmentPreview } from './AttachmentPreview';
+import { generateUUID } from '@/shared/utils/uuid.util';
+import { uploadAttachments } from '@/shared/utils/file.util';
+import { IconButton } from '@/shared/components/IconButton';
+import { ActionButton } from '@/shared/components/ActionButton';
+import { UserAvatar } from '@/shared/components/UserAvatar';
+import { ImageGallery } from './ImageGallery';
+import { formatRelativeTime } from '@/shared/utils/date.util';
 import type {
   Attachment,
   CreatePostAttachment,
-  UploadedAttachment,
+  Post,
 } from '../types/post.type';
-
-const generateUUID = (): string => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
 
 interface EditPostModalProps {
   isOpen: boolean;
@@ -25,6 +23,7 @@ interface EditPostModalProps {
   postId: string;
   initialContent: string;
   initialAttachments: Attachment[];
+  originalPost?: Post | null;
   onUpdated: (payload: { content: string; attachments: Attachment[] }) => void;
 }
 
@@ -34,6 +33,7 @@ export const EditPostModal = ({
   postId,
   initialContent,
   initialAttachments,
+  originalPost,
   onUpdated,
 }: EditPostModalProps) => {
   const [text, setText] = useState(initialContent);
@@ -79,51 +79,11 @@ export const EditPostModal = ({
     });
   }, []);
 
-  const uploadAttachments = useCallback(async (): Promise<
-    UploadedAttachment[]
-  > => {
-    if (attachments.length === 0) return [];
-
-    return Promise.all(
-      attachments.map(async (attachment) => {
-        if (!attachment.file || !attachment.mimeType) {
-          return {
-            key: attachment.key,
-            attachmentUrl: attachment.attachmentUrl,
-            type: attachment.type,
-          } satisfies UploadedAttachment;
-        }
-
-        const response = await postApi.getPresignedUrl({
-          filename: `public/${attachment.file.name}`,
-          mimeType: attachment.mimeType,
-        });
-
-        const { key, url } = response.data;
-        const uploadRes = await fetch(url, {
-          method: 'PUT',
-          headers: { 'Content-Type': attachment.mimeType },
-          body: attachment.file,
-        });
-        if (!uploadRes.ok)
-          throw new Error(`Failed to upload ${attachment.file.name}`);
-
-        const s3BaseUrl = import.meta.env.VITE_S3_BASE_URL;
-        const uploadedUrl = `${s3BaseUrl}/${key}`;
-        return {
-          key,
-          attachmentUrl: uploadedUrl,
-          type: attachment.type,
-        } satisfies UploadedAttachment;
-      })
-    );
-  }, [attachments]);
-
   const handleUpdate = useCallback(async () => {
     if (!text.trim() && attachments.length === 0) return;
     setIsSubmitting(true);
     try {
-      const uploaded = await uploadAttachments();
+      const uploaded = await uploadAttachments(attachments);
       const res = await postApi.updatePost(postId, {
         content: text,
         attachments: uploaded,
@@ -153,7 +113,7 @@ export const EditPostModal = ({
     } finally {
       setIsSubmitting(false);
     }
-  }, [attachments, onClose, onUpdated, postId, text, uploadAttachments]);
+  }, [attachments, onClose, onUpdated, postId, text]);
 
   if (!isOpen) return null;
 
@@ -162,13 +122,13 @@ export const EditPostModal = ({
       <div className="animate-in zoom-in-95 dark:bg-card w-full max-w-[500px] overflow-hidden rounded-xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b p-4">
           <h2 className="text-lg font-bold">Edit post</h2>
-          <button
+          <IconButton
             onClick={onClose}
-            className="text-muted-foreground hover:bg-accent cursor-pointer rounded-full p-1"
             disabled={isSubmitting}
+            variant="default"
           >
             <X size={20} />
-          </button>
+          </IconButton>
         </div>
 
         <div className="max-h-[80vh] space-y-4 overflow-y-auto p-4">
@@ -180,30 +140,56 @@ export const EditPostModal = ({
             disabled={isSubmitting}
           />
 
+          {originalPost && (
+            <div className="bg-muted/40 space-y-2 rounded-xl border p-3">
+              <div className="flex items-center gap-3">
+                <UserAvatar
+                  name={originalPost.poster.name}
+                  avatar={originalPost.poster.avatarUrl}
+                  size="sm"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
+                    {originalPost.poster.name}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {formatRelativeTime(originalPost.createdAt)}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+                {originalPost.content}
+              </p>
+
+              {originalPost.attachments.length > 0 && (
+                <ImageGallery attachments={originalPost.attachments} />
+              )}
+            </div>
+          )}
+
           <AttachmentPreview
             attachments={attachments}
             onRemove={removeAttachment}
           />
 
-          <FileUploadButton
-            onFilesSelected={handleFilesSelected}
-            label="Add media"
-            disabled={isSubmitting}
-          />
+          {!originalPost && (
+            <FileUploadButton
+              onFilesSelected={handleFilesSelected}
+              label="Add media"
+              disabled={isSubmitting}
+            />
+          )}
 
-          <Button
+          <ActionButton
             onClick={handleUpdate}
-            disabled={
-              (!text.trim() && attachments.length === 0) || isSubmitting
-            }
-            className="h-11 w-full bg-blue-600 font-semibold text-white hover:bg-blue-700"
+            disabled={!text.trim() && attachments.length === 0}
+            loading={isSubmitting}
+            variant="primary"
+            fullWidth
           >
-            {isSubmitting ? (
-              <Loader2 className="animate-spin" size={20} />
-            ) : (
-              'Save changes'
-            )}
-          </Button>
+            Update
+          </ActionButton>
         </div>
       </div>
     </div>

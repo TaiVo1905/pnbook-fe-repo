@@ -1,3 +1,4 @@
+import { useRef, useLayoutEffect } from 'react';
 import { useScrollManagement } from '../hooks/useScrollManagement';
 import { useMessageActions } from '../hooks/useMessageActions';
 import { useMessageList } from '../hooks/useMessageList';
@@ -16,6 +17,10 @@ const ChatWindow = ({
   userAvatarUrl?: string;
   currentUserId?: string;
 }) => {
+  const prevScrollHeightRef = useRef(0);
+  const prevScrollTopRef = useRef(0);
+  const isLoadingMoreRef = useRef(false);
+
   const {
     messages,
     setMessages,
@@ -48,18 +53,50 @@ const ChatWindow = ({
       onScrollToBottom: scrollToBottom,
     });
 
+  const handleImageLoadedDuringPagination = () => {
+    if (isLoadingMoreRef.current && scrollRef.current) {
+      const currentScrollHeight = scrollRef.current.scrollHeight;
+      const originalScrollHeight = prevScrollHeightRef.current;
+      const originalScrollTop = prevScrollTopRef.current;
+
+      scrollRef.current.scrollTop =
+        originalScrollTop + (currentScrollHeight - originalScrollHeight);
+    } else {
+      scrollToBottom();
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (isLoadingMoreRef.current && scrollRef.current) {
+      requestAnimationFrame(() => {
+        if (scrollRef.current) {
+          const newScrollHeight = scrollRef.current.scrollHeight;
+          const prevScrollHeight = prevScrollHeightRef.current;
+          const prevScrollTop = prevScrollTopRef.current;
+          scrollRef.current.scrollTop =
+            prevScrollTop + (newScrollHeight - prevScrollHeight);
+        }
+      });
+    }
+  }, [messages]);
+
+  useLayoutEffect(() => {
+    if (isLoadingMoreRef.current && !isFetchingMore) {
+      const timeout = setTimeout(() => {
+        isLoadingMoreRef.current = false;
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isFetchingMore]);
+
   const handleScroll = async () => {
     if (!scrollRef.current) return;
     if (!hasMore || isFetchingMore || isLoading) return;
     if (scrollRef.current.scrollTop === 0) {
-      const prevHeight = scrollRef.current.scrollHeight;
+      prevScrollHeightRef.current = scrollRef.current.scrollHeight;
+      prevScrollTopRef.current = scrollRef.current.scrollTop;
+      isLoadingMoreRef.current = true;
       await fetchMoreMessages();
-      requestAnimationFrame(() => {
-        if (scrollRef.current) {
-          const newHeight = scrollRef.current.scrollHeight;
-          scrollRef.current.scrollTop = newHeight - prevHeight;
-        }
-      });
     }
   };
 
@@ -79,7 +116,7 @@ const ChatWindow = ({
         userAvatarUrl={userAvatarUrl}
         chatId={chatId}
         onScroll={handleScroll}
-        onImageLoaded={scrollToBottom}
+        onImageLoaded={handleImageLoadedDuringPagination}
       />
       <ChatInput
         input={input}

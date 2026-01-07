@@ -39,7 +39,7 @@ export const FileUploadButton = ({
       />
       <div
         onClick={() => !disabled && fileInputRef.current?.click()}
-        className={`hover:bg-accent/50 flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
+        className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors hover:bg-gray-100 ${
           disabled ? 'cursor-not-allowed opacity-50' : ''
         }`}
       >

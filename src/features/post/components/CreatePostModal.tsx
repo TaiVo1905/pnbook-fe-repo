@@ -1,25 +1,19 @@
 import { useState, useCallback } from 'react';
-import { X, Loader2 } from 'lucide-react';
-import { Button } from '@/core/shadcn/components/ui/button';
+import { X } from 'lucide-react';
 import { postApi } from '../services/post.api';
 import { toast } from 'sonner';
 import { FileUploadButton } from './FileUploadButton';
 import { AttachmentPreview } from './AttachmentPreview';
+import { generateUUID } from '@/shared/utils/uuid.util';
+import { uploadAttachments } from '@/shared/utils/file.util';
+import { IconButton } from '@/shared/components/IconButton';
+import { ActionButton } from '@/shared/components/ActionButton';
 import type {
   ApiError,
   CreatePostAttachment,
   CreatePostModalProps,
   CreatePostPayload,
-  UploadedAttachment,
 } from '../types/post.type';
-
-const generateUUID = (): string => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
 
 export const CreatePostModal = ({
   isOpen,
@@ -59,58 +53,12 @@ export const CreatePostModal = ({
     });
   }, []);
 
-  const uploadAttachments = useCallback(async (): Promise<
-    UploadedAttachment[]
-  > => {
-    if (attachments.length === 0) return [];
-
-    return Promise.all(
-      attachments.map(async (attachment) => {
-        if (!attachment.file || !attachment.mimeType) {
-          return {
-            key: attachment.key,
-            attachmentUrl: attachment.attachmentUrl,
-            type: attachment.type,
-          } satisfies UploadedAttachment;
-        }
-
-        const response = await postApi.getPresignedUrl({
-          filename: `public/${attachment.file.name}`,
-          mimeType: attachment.mimeType,
-        });
-
-        const { key, url } = response.data;
-
-        const uploadRes = await fetch(url, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': attachment.mimeType,
-          },
-          body: attachment.file,
-        });
-
-        if (!uploadRes.ok) {
-          throw new Error(`Failed to upload ${attachment.file.name}`);
-        }
-
-        const s3BaseUrl = import.meta.env.VITE_S3_BASE_URL;
-        const uploadedUrl = `${s3BaseUrl}/${key}`;
-
-        return {
-          key,
-          attachmentUrl: uploadedUrl,
-          type: attachment.type,
-        } satisfies UploadedAttachment;
-      })
-    );
-  }, [attachments]);
-
   const handlePost = useCallback(async () => {
     if (!text.trim() && attachments.length === 0) return;
 
     setIsSubmitting(true);
     try {
-      const uploadedAttachments = await uploadAttachments();
+      const uploadedAttachments = await uploadAttachments(attachments);
 
       const payload: CreatePostPayload = {
         content: text,
@@ -155,7 +103,7 @@ export const CreatePostModal = ({
     } finally {
       setIsSubmitting(false);
     }
-  }, [text, attachments, uploadAttachments, onClose, onPostCreated]);
+  }, [text, attachments, onClose, onPostCreated]);
 
   if (!isOpen) {
     return null;
@@ -166,12 +114,9 @@ export const CreatePostModal = ({
       <div className="animate-in zoom-in-95 dark:bg-card w-full max-w-[500px] overflow-hidden rounded-xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b p-4">
           <h2 className="text-lg font-bold">Create post</h2>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:bg-accent cursor-pointer rounded-full p-1"
-          >
+          <IconButton onClick={onClose} variant="ghost">
             <X size={20} />
-          </button>
+          </IconButton>
         </div>
 
         <div className="max-h-[80vh] space-y-4 overflow-y-auto p-4">
@@ -193,19 +138,15 @@ export const CreatePostModal = ({
             disabled={isSubmitting}
           />
 
-          <Button
+          <ActionButton
             onClick={handlePost}
-            disabled={
-              (!text.trim() && attachments.length === 0) || isSubmitting
-            }
-            className="h-11 w-full bg-blue-600 font-semibold text-white hover:bg-blue-700"
+            disabled={!text.trim() && attachments.length === 0}
+            loading={isSubmitting}
+            variant="primary"
+            fullWidth
           >
-            {isSubmitting ? (
-              <Loader2 className="animate-spin" size={20} />
-            ) : (
-              'Post'
-            )}
-          </Button>
+            Post
+          </ActionButton>
         </div>
       </div>
     </div>
