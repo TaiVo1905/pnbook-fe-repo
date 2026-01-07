@@ -1,4 +1,5 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { memo } from 'react';
 import {
   Home,
   Bell,
@@ -12,43 +13,48 @@ import {
 } from 'lucide-react';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Button } from '@/core/shadcn/components/ui/button';
-import { useState, type KeyboardEvent } from 'react';
+import { useState, useCallback, type KeyboardEvent } from 'react';
 import type { SidebarItemProps } from '@/features/post/types/post.type';
+import { useSignOut } from '@/features/auth/hooks/useSignOut';
 
-const SidebarItem = ({
-  icon: Icon,
-  label,
-  to,
-  active = false,
-}: SidebarItemProps) => (
-  <Link
-    to={to}
-    className={`flex items-center gap-4 px-6 py-3 transition-colors ${
-      active
-        ? 'text-primary font-semibold'
-        : 'text-foreground/70 hover:bg-accent'
-    }`}
-  >
-    <Icon size={22} className={active ? 'text-primary' : ''} />
-    <span className="text-[15px]">{label}</span>
-  </Link>
+const SidebarItem = memo(
+  ({ icon: Icon, label, to, active = false }: SidebarItemProps) => (
+    <Link
+      to={to}
+      className={`flex items-center gap-4 px-6 py-3 transition-colors ${
+        active
+          ? 'text-primary font-semibold'
+          : 'text-foreground/70 hover:bg-accent'
+      }`}
+    >
+      <Icon size={22} className={active ? 'text-primary' : ''} />
+      <span className="text-[15px]">{label}</span>
+    </Link>
+  )
 );
 
 export const PrivateLayout = () => {
   const [keyword, setKeyword] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const { signOut, loading } = useSignOut();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = useCallback(
+    (path: string) => location.pathname === path,
+    [location.pathname]
+  );
 
-  const handleSearch = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && keyword.trim()) {
-      e.preventDefault();
-      navigate(
-        `/app/home/search?keyword=${encodeURIComponent(keyword.trim())}`
-      );
-    }
-  };
+  const handleSearch = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && keyword.trim()) {
+        e.preventDefault();
+        navigate(
+          `/app/home/search?keyword=${encodeURIComponent(keyword.trim())}`
+        );
+      }
+    },
+    [keyword, navigate]
+  );
 
   return (
     <div className="bg-background text-foreground flex min-h-screen font-sans">
@@ -90,11 +96,14 @@ export const PrivateLayout = () => {
         </nav>
         <div className="mt-auto border-t pt-4">
           <button
-            onClick={() => navigate('/sign-in')}
-            className="text-foreground/70 hover:bg-accent flex w-full items-center gap-4 px-6 py-3 transition-colors"
+            onClick={() => signOut()}
+            disabled={loading}
+            className="text-foreground/70 hover:bg-accent flex w-full items-center gap-4 px-6 py-3 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             <LogOut size={22} />
-            <span className="text-[15px]">Log Out</span>
+            <span className="text-[15px]">
+              {loading ? 'Signing out...' : 'Log Out'}
+            </span>
           </button>
         </div>
       </aside>
@@ -133,9 +142,7 @@ export const PrivateLayout = () => {
         </header>
 
         <main className="flex flex-1 justify-center overflow-y-auto p-6">
-          <div className="w-full max-w-2xl space-y-6">
-            <Outlet />
-          </div>
+          <Outlet />
         </main>
       </div>
     </div>

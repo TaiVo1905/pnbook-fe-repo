@@ -35,10 +35,10 @@ export function IncomingRequestCard({
         </div>
       </div>
 
-      <div className="mt-4 flex w-full items-center justify-center gap-3">
+      <div className="mt-1 grid w-full grid-cols-2 gap-3">
         <Button
           size="sm"
-          className="h-8 px-3 text-xs"
+          className="h-8 border-none bg-emerald-400 px-3 text-sm text-white shadow-none transition-all hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50"
           onClick={() => onAccept(requester.id)}
           disabled={isProcessing}
         >
@@ -52,7 +52,7 @@ export function IncomingRequestCard({
         <Button
           size="sm"
           variant="outline"
-          className="h-8 px-3 text-xs"
+          className="h-8 border-gray-200 bg-transparent px-3 text-sm transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700"
           onClick={() => onReject(requester.id)}
           disabled={isProcessing}
         >

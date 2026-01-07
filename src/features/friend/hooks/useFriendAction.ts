@@ -14,7 +14,6 @@ export function useFriendActions() {
       const res = await friendApi.getIncomingRequests();
       setIncomingRequests(res.data ?? []);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Failed to fetch requests:', error);
     } finally {
       setIsLoading(false);
@@ -34,7 +33,6 @@ export function useFriendActions() {
         prev.filter((r) => r.requester.id !== requesterId)
       );
     } catch {
-      // <-- Bỏ (error) vì không dùng đến
       toast.error("Can't accept!");
     } finally {
       setActionId(null);
@@ -50,7 +48,6 @@ export function useFriendActions() {
         prev.filter((r) => r.requester.id !== requesterId)
       );
     } catch {
-      // <-- Bỏ (error) vì không dùng đến
       toast.error('Failed to reject request!');
     } finally {
       setActionId(null);

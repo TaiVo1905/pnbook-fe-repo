@@ -1,11 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { useFriendList } from '@/features/friend/hooks/useFriendList';
 import { useFriendRequests } from '@/features/friend/hooks/useSendFriendRequest';
 import { IncomingRequestCard } from '@/features/friend/components/FriendIncomingRequestCard';
 import { FriendListCard } from '@/features/friend/components/FriendListCard';
-import { FriendRequestCard } from '@/features/friend/components/FriendRequestCard';
+import { FriendSuggestionCard } from '@/features/friend/components/FriendRequestCard';
 import { useFriendActions } from '@/features/friend/hooks/useFriendAction';
 
 function getCookie(name: string): string | null {
@@ -14,61 +13,39 @@ function getCookie(name: string): string | null {
   return match ? decodeURIComponent(match[2]) : null;
 }
 
-const currentUserId = getCookie('userId') ?? '';
-const currentUserName = getCookie('userName') ?? '';
-const currentUserAvatar = getCookie('userAvatar') ?? '';
-
 export default function FriendsPage() {
-  const [userId] = useState<string | null>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('userId');
-    }
-    return null;
-  });
+  const currentUserId = getCookie('userId') ?? null;
+  const _currentUserName = getCookie('userName') ?? '';
+  const _currentUserAvatar = getCookie('userAvatar') ?? '';
 
-  const {
-    incomingRequests,
-    isLoading: isIncomingLoading,
-    actionId,
-    handleAccept,
-    handleReject,
-  } = useFriendActions();
+  const { incomingRequests, actionId, handleAccept, handleReject } =
+    useFriendActions();
 
-  const {
-    friends,
-    loading: friendsLoading,
-    removingIds,
-    block,
-    fetchFriends,
-    unfriend,
-  } = useFriendList();
+  const { friends, removingIds, block, fetchFriends, unfriend } =
+    useFriendList();
 
   const onAcceptAndRefresh = async (id: string) => {
     try {
       await handleAccept(id);
       await Promise.all([fetchFriends()]);
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error('Accept failed', err);
     }
   };
 
-  const { requests, sendingIds, toggleRequest } = useFriendRequests(userId);
+  const { requests, sendingIds, toggleRequest, handleSearch } =
+    useFriendRequests(currentUserId);
+
+  const columnStyle =
+    'w-[32%] h-[85vh] mx-[0.6%] border border-border rounded-lg p-6 bg-card flex flex-col overflow-hidden';
 
   return (
-    <>
-      <div className="border-border mx-auto mb-5 max-w-6xl rounded-lg border p-6">
-        <h2 className="mb-4 text-[20px] font-semibold">Friend requests</h2>
-
-        {isIncomingLoading && (
-          <p className="text-muted-foreground">Loading friend requests...</p>
-        )}
-
-        {!isIncomingLoading && incomingRequests.length === 0 && (
-          <p className="text-muted-foreground">No pending friend requests.</p>
-        )}
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="flex w-full justify-center overflow-hidden p-4">
+      <div className={columnStyle}>
+        <h2 className="mb-4 shrink-0 border-b pb-2 text-[19px] font-semibold">
+          Friend requests
+        </h2>
+        <div className="custom-scrollbar flex flex-1 flex-col gap-4 overflow-y-auto pr-2">
           {incomingRequests.map((req) => (
             <IncomingRequestCard
               key={req.id}
@@ -81,18 +58,11 @@ export default function FriendsPage() {
         </div>
       </div>
 
-      <div className="border-border mx-auto mb-5 max-w-6xl rounded-lg border p-6">
-        <h2 className="mb-4 text-[20px] font-semibold">List my friends</h2>
-
-        {friendsLoading && (
-          <p className="text-muted-foreground">Loading friends...</p>
-        )}
-
-        {!friendsLoading && friends.length === 0 && (
-          <p className="text-muted-foreground">You have no friends yet.</p>
-        )}
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className={columnStyle}>
+        <h2 className="mb-4 shrink-0 border-b pb-2 text-[19px] font-semibold">
+          List my friends
+        </h2>
+        <div className="custom-scrollbar flex flex-1 flex-col gap-4 overflow-y-auto pr-2">
           {friends.map((friend) => (
             <FriendListCard
               key={friend.friendId}
@@ -105,36 +75,32 @@ export default function FriendsPage() {
         </div>
       </div>
 
-      <div className="border-border mx-auto max-w-6xl rounded-lg border p-6">
-        <h2 className="mb-4 text-[20px] font-semibold">People You May Know</h2>
-
-        {requests.length === 0 && (
-          <p className="text-muted-foreground">
-            No friend suggestions available.
-          </p>
-        )}
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {requests.map((r, index) => (
-            <FriendRequestCard
-              key={r.friendshipId ?? `${r.user.id}-${r.status}-${index}`}
-              request={{
-                id: r.friendshipId ?? r.user.id,
-                requester: {
-                  id: currentUserId,
-                  name: currentUserName,
-                  avatarUrl: currentUserAvatar,
-                },
-                addressee: r.user,
-                status: r.status as 'pending' | 'idle',
-                createdAt: '',
-              }}
-              onAction={toggleRequest}
+      <div className={columnStyle}>
+        <div className="shrink-0">
+          <h2 className="mb-4 border-b pb-2 text-[19px] font-semibold">
+            Suggestions
+          </h2>
+          <input
+            type="text"
+            placeholder="Type a name..."
+            className="mb-4 w-full rounded border p-2"
+            onChange={(e) => handleSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.preventDefault();
+            }}
+          />
+        </div>
+        <div className="custom-scrollbar flex flex-1 flex-col gap-4 overflow-y-auto pr-2">
+          {requests.map((r) => (
+            <FriendSuggestionCard
+              key={r.user.id}
+              suggestion={r}
+              onToggle={toggleRequest}
               isLoading={sendingIds.includes(r.user.id)}
             />
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }

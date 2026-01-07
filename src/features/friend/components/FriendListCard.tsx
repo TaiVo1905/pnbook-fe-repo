@@ -61,7 +61,7 @@ export function FriendListCard({
           disabled={isLoading}
           variant={isBlocked ? 'outline' : 'secondary'}
           size="sm"
-          className="h-8 w-full px-1 text-[11px]"
+          className="h-8 w-full px-1 text-sm"
         >
           {isLoading ? (
             <Loader2 className="mr-2 h-3 w-3 animate-spin" />
@@ -79,7 +79,7 @@ export function FriendListCard({
           disabled={isLoading}
           variant="outline"
           size="sm"
-          className="w-full border-red-200 px-1 text-[11px] text-red-600 hover:bg-red-600/10"
+          className="w-full border-gray-200 border-red-200 bg-transparent px-1 text-sm text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700"
         >
           <UserMinus className="mr-1 h-3 w-3" />
           Unfriend

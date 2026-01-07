@@ -6,6 +6,7 @@ import { postRoutes } from '@/features/post/routes/post.routes';
 import { SearchPage } from '@/features/post/pages/SearchPage';
 import { NotFoundPage } from '@/core/pages/NotFoundPage';
 import { friendsRoutes } from '@/features/friend/routes/friend.route';
+import { messagingRoutes } from '@/features/messaging/routes/messaging.routes';
 
 export const routes: RouteObject[] = [
   {
@@ -13,6 +14,10 @@ export const routes: RouteObject[] = [
     children: [
       { path: '/', element: <Navigate to="/sign-in" replace /> },
       ...authRoutes,
+      {
+        path: '/',
+        element: <Navigate to="/messages" replace />,
+      },
     ],
   },
   {
@@ -24,10 +29,8 @@ export const routes: RouteObject[] = [
         children: [...postRoutes, { path: 'search', element: <SearchPage /> }],
       },
       ...friendsRoutes,
-
+      ...messagingRoutes,
       { path: 'notifications', element: <NotFoundPage /> },
-      { path: 'friends', element: <NotFoundPage /> },
-      { path: 'messages', element: <NotFoundPage /> },
       { path: 'profile', element: <NotFoundPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],

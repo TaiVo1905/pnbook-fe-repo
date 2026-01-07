@@ -16,18 +16,38 @@ export const friendApi = {
 
   getAllUsers: () => httpClient.get<UserInfo[]>(`/users`),
 
-  getFriendRequests: (page = 1, limit = 20) => {
+  getFriendSuggestions: (page = 1, limit = 20) => {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
     });
     return httpClient.get<BaseResponse<FriendRequest[]>>(
-      `/friendships/requests?${params}`
+      `/friendships?${params}`
     );
   },
 
-  sendFriendRequest: (payload: SendFriendRequestPayload) => {
-    return httpClient.post<BaseResponse<null>>('/friendships', payload);
+  searchUsers: (query: string) => {
+    return httpClient.get<BaseResponse<UserInfo[]>>(
+      `/search/users?keyword=${encodeURIComponent(query)}`
+    );
+  },
+
+  getSentFriendRequests(userId: string) {
+    return httpClient.get<BaseResponse<FriendRequest[]>>(
+      `/user/${userId}/friendships?type=sent`
+    );
+  },
+
+  sendFriendRequest: (addresseeId: string) => {
+    return httpClient.post<BaseResponse<FriendRequest>>('/friendships', {
+      addresseeId,
+    });
+  },
+
+  cancelFriendRequest: (friendshipId: string) => {
+    return httpClient.delete<BaseResponse<null>>(
+      `/friendships/${friendshipId}`
+    );
   },
 
   getFriends: (page = 1, limit = 20) => {
