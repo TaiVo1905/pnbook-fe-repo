@@ -1,14 +1,13 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useState } from 'react';
 import { toast } from 'sonner';
 import type { Post } from '../types/post.type';
 import { PostHeader } from './PostHeader';
 import { ImageGallery } from './ImageGallery';
 import { PostActions } from './PostActions';
 import { CommentSection } from '@/features/comment/components/CommentSection';
-import { useComments } from '@/features/comment/hooks/useComments';
 import { postApi } from '../services/post.api';
 import { SharePostModal } from './SharePostModal';
-import { useCurrentUser } from '@/features/messaging/hooks/useCurrentUser';
+import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
 import { EditPostModal } from './EditPostModal';
 import { PostMenu } from './PostMenu';
 import { OriginalPostPreview } from './OriginalPostPreview';
@@ -27,18 +26,10 @@ export const PostCard = memo(({ post }: { post: Post }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
-  const isSharedPost = Boolean(post.originalPostId);
   const original = post.originalPost;
-  const { fetchComments } = useComments(post.id);
   const { currentUserId } = useCurrentUser();
   const isOwner =
     currentUserId && String(currentUserId) === String(post.posterId);
-
-  useEffect(() => {
-    if (isCommentSectionOpen) {
-      fetchComments();
-    }
-  }, [isCommentSectionOpen, fetchComments]);
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -138,7 +129,6 @@ export const PostCard = memo(({ post }: { post: Post }) => {
       <PostHeader
         poster={post.poster}
         createdAt={post.createdAt}
-        isShared={isSharedPost}
         onMoreClick={() => setShowMenu((v) => !v)}
       />
 
@@ -162,7 +152,9 @@ export const PostCard = memo(({ post }: { post: Post }) => {
       )}
 
       <div className="px-4 pb-4">
-        <p className="mb-4 text-[15px]">{content}</p>
+        <p className="mb-4 text-[15px] break-words whitespace-pre-line">
+          {content}
+        </p>
         <ImageGallery attachments={attachments || []} />
 
         {original && <OriginalPostPreview originalPost={original} />}
@@ -202,6 +194,7 @@ export const PostCard = memo(({ post }: { post: Post }) => {
           postId={post.id}
           initialContent={content}
           initialAttachments={attachments}
+          originalPost={post.originalPost}
           onUpdated={({ content: newContent, attachments: newAtt }) => {
             setContent(newContent);
             setAttachments(newAtt);

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { ThumbsUp, MessageSquare, Share2 } from 'lucide-react';
-import { Button } from '@/core/shadcn/components/ui/button';
+import { IconButton } from '@/shared/components/IconButton';
 
 interface PostActionsProps {
   likeCount?: number;
@@ -71,24 +71,30 @@ const PostActionButton = memo(
     active?: boolean;
     disabled?: boolean;
   }) => (
-    <Button
-      variant={active ? 'secondary' : 'ghost'}
+    <IconButton
       onClick={onClick}
       disabled={disabled}
-      className="text-foreground/70 flex flex-1 cursor-pointer items-center justify-center gap-2 py-5"
+      variant="default"
+      className="flex flex-1 cursor-pointer items-center justify-center gap-2 text-gray-700"
     >
       <Icon size={18} className={active ? 'text-blue-600' : undefined} />
       <div className="flex items-center gap-1">
         <span
-          className={active ? 'font-semibold text-blue-600' : 'font-medium'}
+          className={active ? 'font-semibold text-blue-600' : 'font-normal'}
         >
           {label}
         </span>
         {count !== undefined && count > 0 && (
-          <span className="text-muted-foreground text-xs">({count})</span>
+          <span
+            className={
+              active ? 'text-xs text-blue-600' : 'text-xs text-gray-700'
+            }
+          >
+            ({count})
+          </span>
         )}
       </div>
-    </Button>
+    </IconButton>
   )
 );
 PostActionButton.displayName = 'PostActionButton';

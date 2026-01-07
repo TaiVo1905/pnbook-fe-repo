@@ -9,7 +9,6 @@ interface UseScrollManagementProps {
 export const useScrollManagement = ({
   messages,
   isLoading,
-  isFetchingMore,
 }: UseScrollManagementProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isInitialLoadRef = useRef(true);
@@ -26,22 +25,12 @@ export const useScrollManagement = ({
     return scrollHeight - (scrollTop + clientHeight) < 120;
   };
 
-  // Scroll to bottom on initial load
   useEffect(() => {
     if (!isLoading && isInitialLoadRef.current) {
       setTimeout(scrollToBottom, 100);
       isInitialLoadRef.current = false;
     }
-  }, [isLoading]);
-
-  // Auto-scroll when new messages arrive and user is near bottom
-  useEffect(() => {
-    if (isInitialLoadRef.current) return;
-    if (isFetchingMore || isLoading) return;
-    if (isNearBottom()) {
-      setTimeout(scrollToBottom, 50);
-    }
-  }, [messages, isFetchingMore, isLoading]);
+  }, [isLoading, messages]);
 
   return {
     scrollRef,

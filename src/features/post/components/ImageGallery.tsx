@@ -6,6 +6,7 @@ import {
 } from '@/core/shadcn/components/ui/dialog';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { cn } from '@/core/shadcn/utils/utils';
+import { IconButton } from '@/shared/components/IconButton';
 import type { Attachment } from '../types/post.type';
 
 interface ImageGalleryProps {
@@ -18,9 +19,7 @@ export const ImageGallery = memo(({ attachments }: ImageGalleryProps) => {
   );
 
   const handleOpenLightbox = (index: number) => {
-    if (attachments[index].attachmentType === 'image') {
-      setSelectedImageIndex(index);
-    }
+    setSelectedImageIndex(index);
   };
 
   const handlePrev = (e: MouseEvent) => {
@@ -41,38 +40,50 @@ export const ImageGallery = memo(({ attachments }: ImageGalleryProps) => {
     }
   };
 
-  const renderMedia = (item: Attachment, index: number, className?: string) => {
-    const isVideo = item.attachmentType === 'video';
-    const isAudio = item.attachmentType === 'audio';
-    const clickable = item.attachmentType === 'image';
+  const renderMediaContent = (attachment: Attachment, className?: string) => {
+    const isVideo = attachment.attachmentType === 'video';
+    const isAudio = attachment.attachmentType === 'audio';
 
+    if (isVideo) {
+      return (
+        <video
+          src={attachment.attachmentUrl}
+          className={className || 'h-full w-full object-cover'}
+          controls
+        />
+      );
+    }
+
+    if (isAudio) {
+      return (
+        <div
+          className={cn(
+            'flex h-full w-full items-center justify-center bg-gray-100 p-4',
+            className
+          )}
+        >
+          <audio src={attachment.attachmentUrl} controls className="w-full" />
+        </div>
+      );
+    }
+
+    return (
+      <img
+        src={attachment.attachmentUrl}
+        alt="Post content"
+        className={className || 'h-full w-full object-cover'}
+      />
+    );
+  };
+
+  const renderMedia = (item: Attachment, index: number, className?: string) => {
     return (
       <div
         key={item.id}
-        className={cn(
-          'relative overflow-hidden',
-          clickable ? 'cursor-pointer' : 'cursor-default',
-          className
-        )}
-        onClick={clickable ? () => handleOpenLightbox(index) : undefined}
+        className={cn('relative overflow-hidden', 'cursor-pointer', className)}
+        onClick={() => handleOpenLightbox(index)}
       >
-        {isVideo ? (
-          <video
-            src={item.attachmentUrl}
-            className="h-full w-full object-cover"
-            controls
-          />
-        ) : isAudio ? (
-          <div className="flex h-full w-full items-center justify-center bg-gray-100 p-4">
-            <audio src={item.attachmentUrl} controls className="w-full" />
-          </div>
-        ) : (
-          <img
-            src={item.attachmentUrl}
-            alt="Post content"
-            className="h-full w-full object-cover"
-          />
-        )}
+        {renderMediaContent(item)}
       </div>
     );
   };
@@ -126,40 +137,47 @@ export const ImageGallery = memo(({ attachments }: ImageGalleryProps) => {
         open={selectedImageIndex !== null}
         onOpenChange={(open) => !open && setSelectedImageIndex(null)}
       >
-        <DialogContent className="max-w-4xl border-none bg-transparent p-0 shadow-none sm:max-w-[90vw]">
-          <DialogTitle className="sr-only">Image Preview</DialogTitle>
+        <DialogContent
+          className="max-w-4xl border-none bg-transparent p-0 shadow-none sm:max-w-[90vw]"
+          showCloseButton={false}
+        >
+          <DialogTitle className="sr-only">Media Preview</DialogTitle>
           <div className="relative flex h-full min-h-[50vh] items-center justify-center">
-            <button
+            <IconButton
               onClick={() => setSelectedImageIndex(null)}
-              className="absolute -top-10 right-0 cursor-pointer text-white hover:text-gray-300"
+              className="absolute -top-10 right-0 text-white hover:bg-transparent hover:text-gray-300"
+              variant="ghost"
+              size="lg"
             >
               <X size={32} />
-            </button>
+            </IconButton>
 
             {attachments.length > 1 && (
-              <button
+              <IconButton
                 onClick={handlePrev}
-                className="absolute left-4 z-50 cursor-pointer rounded-full bg-black/20 p-2 text-white hover:bg-black/50"
+                className="absolute left-4 z-50 rounded-full bg-black/20 text-white hover:bg-black/50"
+                variant="ghost"
+                size="lg"
               >
                 <ChevronLeft size={40} />
-              </button>
+              </IconButton>
             )}
 
-            {selectedImageIndex !== null && (
-              <img
-                src={attachments[selectedImageIndex].attachmentUrl}
-                className="max-h-[85vh] w-auto object-contain shadow-2xl"
-                alt="Original size"
-              />
-            )}
+            {selectedImageIndex !== null &&
+              renderMediaContent(
+                attachments[selectedImageIndex],
+                'max-h-[85vh] w-auto shadow-2xl'
+              )}
 
             {attachments.length > 1 && (
-              <button
+              <IconButton
                 onClick={handleNext}
-                className="absolute right-4 z-50 cursor-pointer rounded-full bg-black/20 p-2 text-white hover:bg-black/50"
+                className="absolute right-4 z-50 rounded-full bg-black/20 text-white hover:bg-black/50"
+                variant="ghost"
+                size="lg"
               >
                 <ChevronRight size={40} />
-              </button>
+              </IconButton>
             )}
           </div>
         </DialogContent>
