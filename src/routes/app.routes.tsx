@@ -8,6 +8,7 @@ import { NotFoundPage } from '@/core/pages/NotFoundPage';
 import { friendsRoutes } from '@/features/friend/routes/friend.route';
 import { messagingRoutes } from '@/features/messaging/routes/messaging.routes';
 import { profileRoutes } from '@/features/profile/routes/profile.routes';
+import { NotificationPage } from '@/features/notification/pages/NotificationPage';
 
 export const routes: RouteObject[] = [
   {
@@ -33,6 +34,8 @@ export const routes: RouteObject[] = [
       ...messagingRoutes,
       ...profileRoutes,
       { path: 'notifications', element: <NotFoundPage /> },
+      { path: 'notifications', element: <NotificationPage /> },
+      { path: 'profile', element: <NotFoundPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
