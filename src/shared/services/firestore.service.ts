@@ -2,6 +2,7 @@ import {
   collection,
   query,
   onSnapshot,
+  where,
   orderBy,
   limit,
   type Unsubscribe,
@@ -61,4 +62,37 @@ export const subscribeToMessages = (
 export const getConversationId = (userId1: string, userId2: string): string => {
   const ids = [userId1, userId2].sort();
   return `${ids[0]}:${ids[1]}`;
+};
+
+export const subscribeToNotifications = (
+  receiverId: string, 
+  onUpdate: (notification: any) => void,
+  onError: (error: any) => void
+) => {
+  if (!receiverId) return () => {};
+
+  const notificationsRef = collection(db, 'notifications');
+
+  const q = query(
+    notificationsRef,
+    where('receiverId', '==', String(receiverId).trim()), 
+    orderBy('createdAt', 'desc'),
+    limit(10)
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === 'added') {
+        const data = change.doc.data();
+        onUpdate({ 
+          id: change.doc.id, 
+          ...data,
+          createdAt: data.createdAt 
+        });
+      }
+    });
+  }, (err) => {
+    console.error("Lỗi lắng nghe thông báo:", err);
+    onError(err);
+  });
 };
