@@ -1,18 +1,17 @@
 import { memo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
-import { Button } from '@/core/shadcn/components/ui/button';
+import { IconButton } from '@/shared/components/IconButton';
 import type { UserPreview } from '@/shared/types/user.type';
 
 interface PostHeaderProps {
   poster: UserPreview;
   createdAt: string;
-  isShared?: boolean;
   onMoreClick?: () => void;
 }
 
 export const PostHeader = memo(
-  ({ poster, createdAt, isShared, onMoreClick }: PostHeaderProps) => {
+  ({ poster, createdAt, onMoreClick }: PostHeaderProps) => {
     const timeAgo = formatDistanceToNow(new Date(createdAt), {
       addSuffix: true,
     });
@@ -35,22 +34,14 @@ export const PostHeader = memo(
             <h4 className="text-[15px] font-bold">
               {poster?.name || 'Anonymous User'}
             </h4>
-            {isShared && (
-              <div className="text-[11px] font-semibold text-blue-600">
-                Shared a post
-              </div>
-            )}
-            <span className="text-muted-foreground text-xs">{timeAgo}</span>
+            <span className="text-muted-foreground flex text-[12px]">
+              {timeAgo}
+            </span>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={onMoreClick}
-        >
+        <IconButton variant="default" onClick={onMoreClick}>
           <MoreHorizontal size={20} />
-        </Button>
+        </IconButton>
       </div>
     );
   }

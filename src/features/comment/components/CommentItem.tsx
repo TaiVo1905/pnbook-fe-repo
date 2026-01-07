@@ -1,37 +1,14 @@
 import { memo, useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { Button } from '@/core/shadcn/components/ui/button';
+import { Send } from 'lucide-react';
 import { Input } from '@/core/shadcn/components/ui/input';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/core/shadcn/components/ui/avatar';
-import { cn } from '@/core/shadcn/utils/utils';
+import { formatRelativeTime } from '@/shared/utils/date.util';
+import { UserAvatar } from '@/shared/components/UserAvatar';
+import { IconButton } from '@/shared/components/IconButton';
 import type {
   CommentWithReplies,
   CommentListProps,
 } from '../types/comment.type';
 import { ReplyItem } from './ReplyItem';
-
-const formatTimestamp = (value: string) => {
-  return formatDistanceToNow(new Date(value), { addSuffix: true });
-};
-
-const UserAvatar = ({
-  name,
-  avatar,
-  className,
-}: {
-  name?: string;
-  avatar?: string;
-  className?: string;
-}) => (
-  <Avatar className={cn('h-9 w-9', className)}>
-    {avatar ? <AvatarImage src={avatar} /> : null}
-    <AvatarFallback>{name?.charAt(0) || 'U'}</AvatarFallback>
-  </Avatar>
-);
 
 export const CommentItem = memo(
   ({
@@ -78,23 +55,23 @@ export const CommentItem = memo(
     };
 
     return (
-      <div className="bg-muted/40 space-y-3 rounded-2xl p-3">
+      <div className="bg-muted/40 space-y-2 rounded-2xl p-1">
         <div className="flex gap-3">
           <UserAvatar
             name={comment.commenter?.name}
             avatar={comment.commenter?.avatarUrl}
           />
-          <div className="w-full">
-            <div className="bg-card/70 rounded-2xl px-3 py-2 shadow-sm">
-              <div className="mb-1 flex items-center gap-2 text-sm">
+          <div className="overflow-hidden">
+            <div className="rounded-2xl bg-gray-100 px-3 py-2">
+              <div className="flex items-center gap-2 text-sm">
                 <div className="font-semibold">
                   {comment.commenter?.name || 'User'}
                 </div>
                 <span className="text-xs font-light">
-                  {formatTimestamp(comment.createdAt)}
+                  {formatRelativeTime(comment.createdAt)}
                 </span>
               </div>
-              <p className="text-foreground/80 whitespace-pre-line">
+              <p className="text-foreground/80 break-words whitespace-pre-line">
                 {comment.content}
               </p>
             </div>
@@ -119,35 +96,33 @@ export const CommentItem = memo(
                 </button>
               )}
             </div>
-
-            {showReply && (
-              <div className="mt-2 flex items-center gap-2">
-                <Input
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Write a reply..."
-                  className="flex-1"
-                />
-                <Button
-                  size="sm"
-                  onClick={handleReply}
-                  disabled={submitting}
-                  className="cursor-pointer"
-                >
-                  {submitting ? 'Posting...' : 'Reply'}
-                </Button>
-              </div>
-            )}
           </div>
         </div>
 
         {showReplies && comment.replies && comment.replies.length > 0 && (
-          <div className="border-l pl-6">
+          <div className="pl-12">
             <div className="space-y-3">
               {comment.replies.map((reply) => (
                 <ReplyItem key={reply.id} reply={reply} />
               ))}
             </div>
+          </div>
+        )}
+        {showReply && (
+          <div className="mt-2 ml-12 flex items-center gap-2">
+            <Input
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="Write a reply..."
+              className="flex-1 rounded-2xl bg-gray-50"
+            />
+            <IconButton
+              onClick={handleReply}
+              disabled={submitting || !replyText.trim()}
+              variant="default"
+            >
+              <Send size={20} />
+            </IconButton>
           </div>
         )}
       </div>

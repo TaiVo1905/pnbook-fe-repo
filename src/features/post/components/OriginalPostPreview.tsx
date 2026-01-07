@@ -25,16 +25,18 @@ export const OriginalPostPreview = ({
             </span>
           )}
         </div>
-        <div className="flex flex-col">
-          <span>{originalPost.poster?.name || 'User'}</span>
-          <span className="text-muted-foreground text-xs">
+        <div>
+          <h4 className="">{originalPost.poster?.name || 'User'}</h4>
+          <span className="flex text-[12px] font-normal">
             {formatDistanceToNow(new Date(originalPost.createdAt), {
               addSuffix: true,
             })}
           </span>
         </div>
       </div>
-      <p className="mb-2 text-sm">{originalPost.content}</p>
+      <p className="mb-2 overflow-clip text-sm break-words overflow-ellipsis whitespace-pre-line">
+        {originalPost.content}
+      </p>
       {originalPost.attachments && originalPost.attachments.length > 0 && (
         <ImageGallery attachments={originalPost.attachments} />
       )}

@@ -1,4 +1,4 @@
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { commentApi } from '../services/comment.api';
 import type { CommentWithReplies } from '../types/comment.type';
@@ -6,6 +6,7 @@ import type { CommentWithReplies } from '../types/comment.type';
 export const useComments = (postId: string) => {
   const [comments, setComments] = useState<CommentWithReplies[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
+  const hasFetchedRef = useRef(false);
 
   const { commentCount, totalReplyCount } = useMemo(() => {
     const total = comments.length;
@@ -17,12 +18,13 @@ export const useComments = (postId: string) => {
   }, [comments]);
 
   const fetchComments = useCallback(async () => {
+    if (hasFetchedRef.current || loadingComments) return;
+    hasFetchedRef.current = true;
     setLoadingComments(true);
     try {
       const response = await commentApi.getComments(postId);
       if (response.statusCode === 200) {
         const commentsData = response.data || [];
-        // Don't fetch replies here - load on demand
         const commentsWithReplies = commentsData.map((comment) => ({
           ...comment,
           replies: comment.replies || [],
@@ -39,6 +41,10 @@ export const useComments = (postId: string) => {
     } finally {
       setLoadingComments(false);
     }
+  }, [postId]);
+
+  useEffect(() => {
+    hasFetchedRef.current = false;
   }, [postId]);
 
   const createComment = useCallback(

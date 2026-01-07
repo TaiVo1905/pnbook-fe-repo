@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { authApi } from '@/features/auth/services/auth.api';
+import { userApi } from '@/core/api/user.api';
 
 export function useSignOut() {
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,8 @@ export function useSignOut() {
           .replace(/^ +/, '')
           .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
       });
+
+      userApi.resetCurrentUserCache();
 
       if (res.message) {
         toast.success(res.message);

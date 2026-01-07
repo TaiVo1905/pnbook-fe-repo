@@ -3,7 +3,7 @@ import { ContactList } from '../components/ContactList';
 import ChatWindow from '../components/ChatWindow';
 import { SearchBar } from '../components/SearchBar';
 import { EmptyState } from '../components/EmptyState';
-import { useCurrentUser } from '../hooks/useCurrentUser';
+import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
 
 const MessagingPage = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);

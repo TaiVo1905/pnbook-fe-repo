@@ -13,32 +13,34 @@ export const PostMenu = ({
   onShare,
   onDelete,
 }: PostMenuProps) => {
+  const menuItems = [
+    ...(isOwner ? [{ label: 'Edit post', action: onEdit, className: '' }] : []),
+    { label: 'Share', action: onShare, className: '' },
+    ...(isOwner
+      ? [
+          {
+            label: 'Delete',
+            action: onDelete,
+            className: 'text-red-600',
+            disabled: isDeleting,
+          },
+        ]
+      : []),
+  ];
+
   return (
     <div className="relative">
-      <div className="absolute top-2 right-4 z-10 rounded-lg border bg-white shadow-md">
-        {isOwner && (
+      <div className="absolute top-1 right-4 z-10 rounded-lg border bg-white shadow-md">
+        {menuItems.map((item, idx) => (
           <button
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-            onClick={onEdit}
+            key={idx}
+            className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 ${item.className}`}
+            onClick={item.action}
+            disabled={item.disabled}
           >
-            Edit post
+            {item.label}
           </button>
-        )}
-        <button
-          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-          onClick={onShare}
-        >
-          Share
-        </button>
-        {isOwner && (
-          <button
-            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-            onClick={onDelete}
-            disabled={isDeleting}
-          >
-            Delete
-          </button>
-        )}
+        ))}
       </div>
     </div>
   );
