@@ -52,7 +52,7 @@ export function useFriendList() {
 
     try {
       await friendApi.unFriend(id);
-      toast.success('Unfriend successfully!');
+      toast.success('Unfriended successfully!');
 
       await fetchFriends();
     } catch (error) {

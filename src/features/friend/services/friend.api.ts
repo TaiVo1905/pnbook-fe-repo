@@ -60,7 +60,7 @@ export const friendApi = {
 
   updateFriendStatus: (friendId: string, status: 'accepted' | 'block') => {
     return httpClient.patch<BaseResponse<null>>(`/friendships/${friendId}`, {
-      status: status,
+      status,
     });
   },
 

@@ -31,7 +31,7 @@ export function IncomingRequestCard({
         </Avatar>
         <div>
           <p className="text-sm font-medium">{requester.name}</p>
-          <p className="text-muted-foreground text-xs">Want to connect</p>
+          <p className="text-muted-foreground text-xs">Wants to connect</p>
         </div>
       </div>
 
@@ -45,7 +45,7 @@ export function IncomingRequestCard({
           {isProcessing ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <Check className="mr-1 h-4 w-2" />
+            <Check className="mr-1 h-4 w-4" />
           )}
           Accept
         </Button>

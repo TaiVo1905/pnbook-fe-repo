@@ -28,12 +28,12 @@ export function useFriendActions() {
     setActionId(requesterId);
     try {
       await friendApi.acceptRequest(requesterId);
-      toast.success('Accept connect!');
+      toast.success('Friend request accepted!');
       setIncomingRequests((prev) =>
         prev.filter((r) => r.requester.id !== requesterId)
       );
     } catch {
-      toast.error("Can't accept!");
+      toast.error('Failed to accept friend request. Please try again!');
     } finally {
       setActionId(null);
     }

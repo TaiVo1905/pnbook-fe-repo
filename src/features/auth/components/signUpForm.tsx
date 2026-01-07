@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Input } from '@/core/shadcn/components/ui/input';
 import { Label } from '@/core/shadcn/components/ui/label';
-import { Button } from '@/core/shadcn/components/ui/button';
+import { ActionButton } from '@/shared/components/ActionButton';
 import { toast } from 'sonner';
 
 import { signUpSchema } from '@/features/auth/schemas/signUp.schema';
@@ -111,27 +111,30 @@ export default function SignUpForm() {
           )}
         </div>
 
-        <Button
+        <ActionButton
           type="submit"
-          className="w-full bg-blue-500 hover:bg-gray-300"
-          disabled={loading}
+          variant="primary"
+          loading={loading}
+          fullWidth
         >
-          {loading ? 'Signing Up...' : 'Sign Up'}
-        </Button>
+          Sign Up
+        </ActionButton>
       </form>
 
-      <div className="mt-6 space-y-4">
-        <Button
+      <div className="mt-6">
+        <ActionButton
           type="button"
           onClick={async () => {
             await googleSubmit();
           }}
           disabled={googleLoading}
-          className="bg-white-500 flex w-full items-center justify-center gap-2 border text-black hover:bg-gray-100"
+          variant="ghost"
+          fullWidth
+          className="flex items-center justify-center gap-2 border border-gray-200 bg-white"
         >
           <FcGoogle className="text-xl" />
           {googleLoading ? 'Signing In...' : 'Sign In with Google'}
-        </Button>
+        </ActionButton>
       </div>
 
       <p className="text-muted-foreground mt-4 text-center text-sm">

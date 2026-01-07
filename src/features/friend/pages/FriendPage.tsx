@@ -1,5 +1,3 @@
-'use client';
-
 import { useFriendList } from '@/features/friend/hooks/useFriendList';
 import { useFriendRequests } from '@/features/friend/hooks/useSendFriendRequest';
 import { IncomingRequestCard } from '@/features/friend/components/FriendIncomingRequestCard';
@@ -27,7 +25,7 @@ export default function FriendsPage() {
   const onAcceptAndRefresh = async (id: string) => {
     try {
       await handleAccept(id);
-      await Promise.all([fetchFriends()]);
+      await fetchFriends();
     } catch (err) {
       console.error('Accept failed', err);
     }
