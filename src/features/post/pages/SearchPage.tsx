@@ -1,14 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { postApi } from '../services/post.api';
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from '@/core/shadcn/components/ui/avatar';
 import { Button } from '@/core/shadcn/components/ui/button';
 import { toast } from 'sonner';
 import PostLayout from '../layouts/PostLayout';
+import { UserAvatar } from '@/shared/components/UserAvatar';
 
 interface UserSearch {
   id: string;
@@ -22,6 +18,8 @@ export const SearchPage = () => {
   const keyword = searchParams.get('keyword') || '';
   const [results, setResults] = useState<UserSearch[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const fetchResults = useCallback(async () => {
     if (!keyword) return;
@@ -56,13 +54,14 @@ export const SearchPage = () => {
             {results.map((user) => (
               <div
                 key={user.id}
-                className="hover:bg-accent/50 flex items-center justify-between rounded-lg border-b p-3 transition-colors last:border-0"
+                className="flex items-center justify-between rounded-lg border bg-blue-50 p-3 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <Avatar className="h-12 w-12 border">
-                    <AvatarImage src={user.avatarUrl} alt={user.name} />
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    name={user.name}
+                    avatar={user.avatarUrl}
+                    className="h-12 w-12 border"
+                  />
                   <div>
                     <h4 className="text-[15px] font-semibold">{user.name}</h4>
                     <p className="text-muted-foreground text-sm">
@@ -73,7 +72,10 @@ export const SearchPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-full px-5"
+                  className="cursor-pointer rounded-full bg-white px-5 hover:bg-gray-100"
+                  onClick={() => {
+                    navigate(`/app/profile/${user.id}`);
+                  }}
                 >
                   View profile
                 </Button>

@@ -19,10 +19,16 @@ const sizeClasses = {
   lg: 'h-10 w-10',
 };
 
+const defaultAvatarUrl = import.meta.env.VITE_AVATAR_DEFAULT_URL || '';
+
 export const UserAvatar = memo(
   ({ name, avatar, className, size = 'md' }: UserAvatarProps) => (
     <Avatar className={cn(sizeClasses[size], className)}>
-      {avatar && <AvatarImage src={avatar} alt={name} />}
+      {avatar ? (
+        <AvatarImage src={avatar} alt={name} />
+      ) : (
+        <AvatarImage src={defaultAvatarUrl} alt={name} />
+      )}
       <AvatarFallback>{name?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
     </Avatar>
   )

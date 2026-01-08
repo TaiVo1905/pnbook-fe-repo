@@ -3,8 +3,8 @@ import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { IconButton } from '@/shared/components/IconButton';
 import { ActionButton } from '@/shared/components/ActionButton';
-import type { Post } from '../types/post.type';
-import { ImageGallery } from './ImageGallery';
+import { ImageGallery } from '../components/post/ImageGallery';
+import type { Post } from '@/shared/types/post.type';
 import { formatDistanceToNow } from 'date-fns';
 
 interface SharePostModalProps {

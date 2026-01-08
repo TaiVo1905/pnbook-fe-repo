@@ -141,7 +141,7 @@ export const PrivateLayout = () => {
           </div>
         </header>
 
-        <main className="flex flex-1 justify-center overflow-y-auto p-6">
+        <main className="flex flex-1 justify-center overflow-y-scroll p-6">
           <Outlet />
         </main>
       </div>

@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from 'date-fns';
-import type { Post } from '../types/post.type';
+import type { Post } from '@/shared/types/post.type';
 import { ImageGallery } from './ImageGallery';
+import { UserAvatar } from '../UserAvatar';
 
 interface OriginalPostPreviewProps {
   originalPost: Post;
@@ -13,17 +14,11 @@ export const OriginalPostPreview = ({
     <div className="bg-muted/40 mt-4 rounded-xl border p-3">
       <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
         <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-pink-100">
-          {originalPost.poster?.avatarUrl ? (
-            <img
-              src={originalPost.poster.avatarUrl}
-              alt={originalPost.poster.name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span className="text-pink-600">
-              {originalPost.poster?.name?.charAt(0) || 'U'}
-            </span>
-          )}
+          <UserAvatar
+            name={originalPost.poster.name}
+            avatar={originalPost.poster.avatarUrl}
+            className="h-full w-full"
+          />
         </div>
         <div>
           <h4 className="">{originalPost.poster?.name || 'User'}</h4>
