@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import { Button } from '@/core/shadcn/components/ui/button';
-import { UserPlus, UserX, Loader2 } from 'lucide-react';
+import { ActionButton } from '@/shared/components/ActionButton';
+import { UserPlus, UserX } from 'lucide-react';
 import type { FriendRequest } from '@/features/friend/types/friends.type';
 
 interface FriendRequestCardProps {
@@ -32,32 +32,29 @@ export const FriendRequestCard = memo(
         </div>
 
         {isRequested ? (
-          <Button
+          <ActionButton
             onClick={() => onCancel(user.id)}
             disabled={isLoading}
+            loading={isLoading}
             variant="secondary"
-            className="w-full"
+            fullWidth
+            className="gap-2"
           >
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <UserX className="mr-2 h-4 w-4" />
-            )}
+            <UserX className="h-4 w-4" />
             Cancel
-          </Button>
+          </ActionButton>
         ) : (
-          <Button
+          <ActionButton
             onClick={() => onSend(user.id)}
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white hover:bg-blue-700"
+            loading={isLoading}
+            variant="primary"
+            fullWidth
+            className="gap-2"
           >
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <UserPlus className="mr-2 h-4 w-4" />
-            )}
+            <UserPlus className="h-4 w-4" />
             Send
-          </Button>
+          </ActionButton>
         )}
       </div>
     );

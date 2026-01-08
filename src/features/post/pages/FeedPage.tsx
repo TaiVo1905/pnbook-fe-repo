@@ -1,62 +1,88 @@
-import { useState, useEffect, useCallback } from 'react';
-import { CreatePostModal } from '../components/CreatePostModal';
-import { PostCard } from '../components/PostCard';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { CreatePostModal } from '@/shared/modals/CreatePostModal';
+import { PostCard } from '@/shared/components/post/PostCard';
 import { toast } from 'sonner';
-import { postApi } from '../services/post.api';
-import type { Post } from '../types/post.type';
-import { Button } from '@/core/shadcn/components/ui/button';
-import { ImageIcon } from 'lucide-react';
+import { ImageIcon, Loader2 } from 'lucide-react';
+import { ActionButton } from '@/shared/components/ActionButton';
 import PostLayout from '../layouts/PostLayout';
 import { userApi, type UserProfile } from '@/core/api/user.api';
+import { usePostFeed } from '../hooks/usePostFeed';
 
 export const FeedPage = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const fetchCurrentUser = useCallback(async () => {
-    try {
-      const response = await userApi.getCurrentUser();
-      if (response) {
-        setCurrentUser(response.data);
-      }
-    } catch {
-      toast.error('Failed to fetch current user');
-    }
-  }, []);
+  const {
+    posts,
+    isLoading,
+    isFetchingMore,
+    hasMore,
+    fetchMore,
+    fetchLatest,
+    prevScrollHeightRef,
+    prevScrollTopRef,
+    isLoadingMoreRef,
+  } = usePostFeed();
 
   useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await userApi.getCurrentUser();
+        if (response) {
+          setCurrentUser(response.data);
+        }
+      } catch {
+        toast.error('Failed to fetch current user');
+      }
+    };
     fetchCurrentUser();
-  }, [fetchCurrentUser]);
-
-  const fetchFeeds = useCallback(async () => {
-    try {
-      const response = await postApi.getFeeds();
-
-      if (response && response.statusCode === 200) {
-        setPosts(response.data);
-      } else {
-        toast.error(response.message || 'Failed to fetch feeds');
-      }
-    } catch {
-      toast.error('Failed to load feeds');
-    } finally {
-      setLoading(false);
-    }
   }, []);
 
-  useEffect(() => {
-    fetchFeeds();
-  }, [fetchFeeds]);
+  const handleScroll = async () => {
+    if (!scrollRef.current) return;
+    if (!hasMore || isFetchingMore || isLoading) return;
 
-  if (loading) {
-    return <div className="py-10 text-center">Loading feeds...</div>;
-  }
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+
+    if (scrollHeight - (scrollTop + clientHeight) < 500) {
+      prevScrollHeightRef.current = scrollRef.current.scrollHeight;
+      prevScrollTopRef.current = scrollRef.current.scrollTop;
+      isLoadingMoreRef.current = true;
+      await fetchMore();
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (isLoadingMoreRef.current && scrollRef.current) {
+      requestAnimationFrame(() => {
+        if (scrollRef.current) {
+          const newScrollHeight = scrollRef.current.scrollHeight;
+          const prevScrollHeight = prevScrollHeightRef.current;
+          const prevScrollTop = prevScrollTopRef.current;
+          scrollRef.current.scrollTop =
+            prevScrollTop + (newScrollHeight - prevScrollHeight);
+        }
+      });
+    }
+  }, [posts]);
+
+  useLayoutEffect(() => {
+    if (isLoadingMoreRef.current && !isFetchingMore) {
+      const timeout = setTimeout(() => {
+        isLoadingMoreRef.current = false;
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isFetchingMore]);
 
   return (
     <PostLayout>
-      <div className="space-y-6">
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="max-h-screen space-y-6 overflow-y-auto"
+      >
         <div className="bg-card rounded-xl border p-4 shadow-sm">
           <div className="mb-4 flex items-center gap-3">
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border">
@@ -72,38 +98,50 @@ export const FeedPage = () => {
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-border/50 text-muted-foreground hover:bg-border flex-1 cursor-pointer rounded-full px-5 py-2.5 text-left transition-colors"
+              className="flex-1 cursor-pointer rounded-full border px-5 py-2.5 text-left text-gray-500 transition-colors hover:bg-gray-100"
             >
               What do you think?
             </button>
           </div>
 
           <div className="flex justify-center border-t pt-2">
-            <Button
+            <ActionButton
               variant="ghost"
-              className="text-foreground/70 gap-2"
+              className="flex justify-center gap-2 rounded-lg"
               onClick={() => setIsModalOpen(true)}
             >
               <ImageIcon size={20} className="text-green-500" />
-              <span className="text-[14px] font-medium">Images/Videos</span>
-            </Button>
+              <span className="text-[13px] font-medium text-gray-600">
+                Images/Videos
+              </span>
+            </ActionButton>
           </div>
         </div>
 
-        <div className="space-y-6">
-          {posts.length === 0 ? (
-            <div className="text-muted-foreground py-10 text-center">
-              No posts available.
-            </div>
-          ) : (
-            posts.map((post) => <PostCard key={post.id} post={post} />)
-          )}
-        </div>
+        {isLoading ? (
+          <div className="py-10 text-center">Loading feeds...</div>
+        ) : posts.length === 0 ? (
+          <div className="text-muted-foreground py-10 text-center">
+            No posts available.
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
+
+        {isFetchingMore && (
+          <div className="flex justify-center py-6">
+            <Loader2 size={24} className="animate-spin text-blue-600" />
+          </div>
+        )}
 
         <CreatePostModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onPostCreated={fetchFeeds}
+          onPostCreated={fetchLatest}
         />
       </div>
     </PostLayout>

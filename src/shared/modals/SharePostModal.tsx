@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { Button } from '@/core/shadcn/components/ui/button';
 import { toast } from 'sonner';
-import type { Post } from '../types/post.type';
-import { ImageGallery } from './ImageGallery';
+import { IconButton } from '@/shared/components/IconButton';
+import { ActionButton } from '@/shared/components/ActionButton';
+import { ImageGallery } from '../components/post/ImageGallery';
+import type { Post } from '@/shared/types/post.type';
 import { formatDistanceToNow } from 'date-fns';
 
 interface SharePostModalProps {
@@ -26,10 +27,9 @@ export const SharePostModal = ({
 
   const handleShare = async () => {
     const content = text.trim();
-    if (!content) return;
     setSubmitting(true);
     try {
-      await onShare(content);
+      await onShare(content || '  ');
       setText('');
       onClose();
       toast.success('Shared post');
@@ -45,13 +45,14 @@ export const SharePostModal = ({
       <div className="dark:bg-card w-full max-w-[500px] overflow-hidden rounded-xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b p-4">
           <h2 className="text-lg font-bold">Share post</h2>
-          <button
+          <IconButton
             onClick={onClose}
-            className="text-muted-foreground hover:bg-accent cursor-pointer rounded-full p-1"
             disabled={submitting}
+            variant="default"
+            className="hover:bg-gray-100"
           >
             <X size={20} />
-          </button>
+          </IconButton>
         </div>
 
         <div className="max-h-[80vh] space-y-4 overflow-y-auto p-4">
@@ -78,9 +79,9 @@ export const SharePostModal = ({
                   </span>
                 )}
               </div>
-              <div className="flex flex-col">
-                <span>{post.poster?.name || 'User'}</span>
-                <span className="text-muted-foreground text-xs">
+              <div className="">
+                <h4 className="font-bold">{post.poster?.name || 'User'}</h4>
+                <span className="text-muted-foreground flex text-[12px] font-normal">
                   {formatDistanceToNow(new Date(post.createdAt), {
                     addSuffix: true,
                   })}
@@ -88,19 +89,21 @@ export const SharePostModal = ({
               </div>
             </div>
 
-            <p className="text-foreground/90 mb-3 text-[14px]">
+            <p className="text-foreground/90 mb-3 overflow-clip text-[14px] break-words overflow-ellipsis whitespace-pre-line">
               {post.content}
             </p>
             <ImageGallery attachments={post.attachments || []} />
           </div>
 
-          <Button
+          <ActionButton
             onClick={handleShare}
-            disabled={submitting || !text.trim()}
-            className="h-11 w-full bg-blue-600 font-semibold text-white hover:bg-blue-700"
+            disabled={submitting}
+            loading={submitting}
+            variant="primary"
+            fullWidth
           >
-            {submitting ? 'Sharing...' : 'Share'}
-          </Button>
+            Share
+          </ActionButton>
         </div>
       </div>
     </div>

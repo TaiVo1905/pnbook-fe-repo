@@ -1,5 +1,5 @@
-import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { memo } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import {
   Home,
   Bell,
@@ -12,32 +12,32 @@ import {
   Settings,
 } from 'lucide-react';
 import { Input } from '@/core/shadcn/components/ui/input';
-import { Button } from '@/core/shadcn/components/ui/button';
 import { useState, useCallback, type KeyboardEvent } from 'react';
-import type { SidebarItemProps } from '@/features/post/types/post.type';
+import { SidebarItem } from '@/core/components/SidebarItem';
+import { IconButton } from '@/shared/components/IconButton';
 import { useSignOut } from '@/features/auth/hooks/useSignOut';
-
-const SidebarItem = memo(
-  ({ icon: Icon, label, to, active = false }: SidebarItemProps) => (
-    <Link
-      to={to}
-      className={`flex items-center gap-4 px-6 py-3 transition-colors ${
-        active
-          ? 'text-primary font-semibold'
-          : 'text-foreground/70 hover:bg-accent'
-      }`}
-    >
-      <Icon size={22} className={active ? 'text-primary' : ''} />
-      <span className="text-[15px]">{label}</span>
-    </Link>
-  )
-);
+import { userApi, type UserProfile } from '@/core/api/user.api';
 
 export const PrivateLayout = () => {
   const [keyword, setKeyword] = useState('');
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut, loading } = useSignOut();
+
+  useEffect(() => {
+    const loadCurrentUser = async () => {
+      try {
+        const response = await userApi.getCurrentUser();
+        if (response?.data) {
+          setCurrentUser(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to load current user:', error);
+      }
+    };
+    loadCurrentUser();
+  }, []);
 
   const isActive = useCallback(
     (path: string) => location.pathname === path,
@@ -98,7 +98,7 @@ export const PrivateLayout = () => {
           <button
             onClick={() => signOut()}
             disabled={loading}
-            className="text-foreground/70 hover:bg-accent flex w-full items-center gap-4 px-6 py-3 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="hover:text-foreground flex w-full cursor-pointer items-center gap-4 px-6 py-3 text-gray-500 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <LogOut size={22} />
             <span className="text-[15px]">
@@ -125,15 +125,15 @@ export const PrivateLayout = () => {
             />
           </div>
           <div className="flex flex-1 items-center justify-end gap-3">
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <IconButton variant="default">
               <Moon size={20} />
-            </Button>
-            <Button variant="ghost" size="icon" className="rounded-full">
+            </IconButton>
+            <IconButton variant="default">
               <Settings size={20} />
-            </Button>
+            </IconButton>
             <div className="ml-2 h-9 w-9 overflow-hidden rounded-full border">
               <img
-                src="https://github.com/shadcn.png"
+                src={currentUser?.avatarUrl || 'https://github.com/shadcn.png'}
                 alt="Avatar"
                 className="h-full w-full object-cover"
               />
@@ -141,7 +141,7 @@ export const PrivateLayout = () => {
           </div>
         </header>
 
-        <main className="flex flex-1 justify-center overflow-y-auto p-6">
+        <main className="flex flex-1 justify-center overflow-y-scroll p-6">
           <Outlet />
         </main>
       </div>

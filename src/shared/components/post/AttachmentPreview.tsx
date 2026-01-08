@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import type { CreatePostAttachment } from '../types/post.type';
+import type { CreatePostAttachment } from '@/shared/types/post.type';
 
 interface AttachmentPreviewProps {
   attachments: CreatePostAttachment[];
