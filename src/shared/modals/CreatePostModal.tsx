@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
 import { X } from 'lucide-react';
-import { postApi } from '../services/post.api';
+import { postApi } from '@/features/post/services/post.api';
 import { toast } from 'sonner';
-import { FileUploadButton } from './FileUploadButton';
-import { AttachmentPreview } from './AttachmentPreview';
+import { FileUploadButton } from '../components/post/FileUploadButton';
+import { AttachmentPreview } from '../components/post/AttachmentPreview';
 import { generateUUID } from '@/shared/utils/uuid.util';
 import { uploadAttachments } from '@/shared/utils/file.util';
 import { IconButton } from '@/shared/components/IconButton';
@@ -13,7 +13,7 @@ import type {
   CreatePostAttachment,
   CreatePostModalProps,
   CreatePostPayload,
-} from '../types/post.type';
+} from '@/shared/types/post.type';
 
 export const CreatePostModal = ({
   isOpen,

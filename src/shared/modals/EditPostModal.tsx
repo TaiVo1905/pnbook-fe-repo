@@ -1,21 +1,21 @@
 import { useState, useCallback, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { postApi } from '../services/post.api';
+import { postApi } from '@/features/post/services/post.api';
 import { toast } from 'sonner';
-import { FileUploadButton } from './FileUploadButton';
-import { AttachmentPreview } from './AttachmentPreview';
+import { FileUploadButton } from '../components/post/FileUploadButton';
+import { AttachmentPreview } from '../components/post/AttachmentPreview';
+import { ImageGallery } from '../components/post/ImageGallery';
 import { generateUUID } from '@/shared/utils/uuid.util';
 import { uploadAttachments } from '@/shared/utils/file.util';
 import { IconButton } from '@/shared/components/IconButton';
 import { ActionButton } from '@/shared/components/ActionButton';
 import { UserAvatar } from '@/shared/components/UserAvatar';
-import { ImageGallery } from './ImageGallery';
 import { formatRelativeTime } from '@/shared/utils/date.util';
 import type {
   Attachment,
   CreatePostAttachment,
   Post,
-} from '../types/post.type';
+} from '@/shared/types/post.type';
 
 interface EditPostModalProps {
   isOpen: boolean;

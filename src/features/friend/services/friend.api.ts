@@ -57,7 +57,7 @@ export async function postSendFriendRequest(
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ addresseeId: payload.friendId }),
       }
     );
 

@@ -1,14 +1,14 @@
 import { memo, useState } from 'react';
 import { toast } from 'sonner';
-import type { Post } from '../types/post.type';
+import type { Post, Attachment } from '@/shared/types/post.type';
 import { PostHeader } from './PostHeader';
 import { ImageGallery } from './ImageGallery';
 import { PostActions } from './PostActions';
 import { CommentSection } from '@/features/comment/components/CommentSection';
-import { postApi } from '../services/post.api';
-import { SharePostModal } from './SharePostModal';
+import { postApi } from '@/features/post/services/post.api';
+import { SharePostModal } from '@/shared/modals/SharePostModal';
 import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
-import { EditPostModal } from './EditPostModal';
+import { EditPostModal } from '@/shared/modals/EditPostModal';
 import { PostMenu } from './PostMenu';
 import { OriginalPostPreview } from './OriginalPostPreview';
 
@@ -195,7 +195,13 @@ export const PostCard = memo(({ post }: { post: Post }) => {
           initialContent={content}
           initialAttachments={attachments}
           originalPost={post.originalPost}
-          onUpdated={({ content: newContent, attachments: newAtt }) => {
+          onUpdated={({
+            content: newContent,
+            attachments: newAtt,
+          }: {
+            content: string;
+            attachments: Attachment[];
+          }) => {
             setContent(newContent);
             setAttachments(newAtt);
           }}

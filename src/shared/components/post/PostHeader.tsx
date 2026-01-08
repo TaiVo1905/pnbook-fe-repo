@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
 import { IconButton } from '@/shared/components/IconButton';
 import type { UserPreview } from '@/shared/types/user.type';
+import { UserAvatar } from '../UserAvatar';
 
 interface PostHeaderProps {
   poster: UserPreview;
@@ -20,15 +21,11 @@ export const PostHeader = memo(
       <div className="flex items-start justify-between p-4">
         <div className="flex gap-3">
           <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border bg-pink-100">
-            {poster?.avatarUrl ? (
-              <img
-                src={poster.avatarUrl}
-                className="h-full w-full object-cover"
-                alt={poster.name}
-              />
-            ) : (
-              <span className="font-bold text-pink-600">U</span>
-            )}
+            <UserAvatar
+              name={poster.name}
+              avatar={poster.avatarUrl}
+              className="h-full w-full"
+            />
           </div>
           <div>
             <h4 className="text-[15px] font-bold">

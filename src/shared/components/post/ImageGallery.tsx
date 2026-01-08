@@ -7,7 +7,7 @@ import {
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { cn } from '@/core/shadcn/utils/utils';
 import { IconButton } from '@/shared/components/IconButton';
-import type { Attachment } from '../types/post.type';
+import type { Attachment } from '@/shared/types/post.type';
 
 interface ImageGalleryProps {
   attachments: Attachment[];

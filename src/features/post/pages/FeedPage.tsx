@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { CreatePostModal } from '../components/CreatePostModal';
-import { PostCard } from '../components/PostCard';
+import { CreatePostModal } from '@/shared/modals/CreatePostModal';
+import { PostCard } from '@/shared/components/post/PostCard';
 import { toast } from 'sonner';
 import { ImageIcon, Loader2 } from 'lucide-react';
 import { ActionButton } from '@/shared/components/ActionButton';
