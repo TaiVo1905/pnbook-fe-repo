@@ -33,7 +33,6 @@ export const routes: RouteObject[] = [
       ...friendsRoutes,
       ...messagingRoutes,
       ...profileRoutes,
-      { path: 'notifications', element: <NotFoundPage /> },
       { path: 'notifications', element: <NotificationPage /> },
       { path: 'profile', element: <NotFoundPage /> },
       { path: '*', element: <NotFoundPage /> },

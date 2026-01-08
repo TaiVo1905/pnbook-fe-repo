@@ -53,8 +53,7 @@ export const subscribeToMessages = (
     );
 
     return unsubscribe;
-  } catch (error) {
-    if (onError) onError(error as Error);
+  } catch (_error) {
     return () => {};
   }
 };
@@ -65,9 +64,9 @@ export const getConversationId = (userId1: string, userId2: string): string => {
 };
 
 export const subscribeToNotifications = (
-  receiverId: string, 
-  onUpdate: (notification: any) => void,
-  onError: (error: any) => void
+  receiverId: string,
+  onUpdate: (notification: unknown) => void,
+  onError: (error: Error) => void
 ) => {
   if (!receiverId) return () => {};
 
@@ -75,24 +74,28 @@ export const subscribeToNotifications = (
 
   const q = query(
     notificationsRef,
-    where('receiverId', '==', String(receiverId).trim()), 
+    where('receiverId', '==', String(receiverId).trim()),
     orderBy('createdAt', 'desc'),
     limit(10)
   );
 
-  return onSnapshot(q, (snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-      if (change.type === 'added') {
-        const data = change.doc.data();
-        onUpdate({ 
-          id: change.doc.id, 
-          ...data,
-          createdAt: data.createdAt 
-        });
-      }
-    });
-  }, (err) => {
-    console.error("Lỗi lắng nghe thông báo:", err);
-    onError(err);
-  });
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          const data = change.doc.data();
+          onUpdate({
+            id: change.doc.id,
+            ...data,
+            createdAt: data.createdAt,
+          });
+        }
+      });
+    },
+    (err) => {
+      console.error('Error listening to notifications:', err);
+      onError(err);
+    }
+  );
 };
