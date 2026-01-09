@@ -49,15 +49,6 @@ export const postApi = {
       `/users/${userId}`
     ),
 
-  searchUsers: (keyword: string, page = 1, limit = 20) => {
-    const params = new URLSearchParams({
-      keyword,
-      page: page.toString(),
-      limit: limit.toString(),
-    });
-    return httpClient.get<BaseResponse<[]>>(`/search/users?${params}`);
-  },
-
   updatePost: (postId: string, payload: UpdatePostPayload) =>
     httpClient.patch<BaseResponse<Post>>(`/posts/${postId}`, payload),
 

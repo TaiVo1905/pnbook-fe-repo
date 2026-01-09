@@ -4,6 +4,7 @@ import ChatWindow from '../components/ChatWindow';
 import { SearchBar } from '../components/SearchBar';
 import { EmptyState } from '../components/EmptyState';
 import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
+import { useConversations } from '../hooks/useConversations';
 
 const MessagingPage = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -15,6 +16,8 @@ const MessagingPage = () => {
   );
   const [searchTerm, setSearchTerm] = useState('');
   const { currentUserId } = useCurrentUser();
+  const { conversations, loading, markAsRead, upsertConversation } =
+    useConversations();
 
   return (
     <div className="h-full w-full bg-slate-50">
@@ -30,6 +33,10 @@ const MessagingPage = () => {
               }}
               selectedId={selectedId}
               searchTerm={searchTerm}
+              currentUserId={currentUserId}
+              conversations={conversations}
+              loadingConversations={loading}
+              markAsRead={markAsRead}
             />
           </div>
         </div>
@@ -40,6 +47,18 @@ const MessagingPage = () => {
               userName={selectedName}
               userAvatarUrl={selectedAvatar}
               currentUserId={currentUserId}
+              onMessageSent={(msg) => {
+                if (!selectedId) return;
+                upsertConversation({
+                  user: {
+                    id: selectedId,
+                    name: selectedName || 'Unknown User',
+                    avatarUrl: selectedAvatar,
+                  },
+                  message: msg,
+                  isMe: true,
+                });
+              }}
             />
           ) : (
             <EmptyState />

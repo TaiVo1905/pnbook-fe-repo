@@ -2,6 +2,7 @@ import type {
   MessagingResponse,
   Message,
   Conversation,
+  User,
 } from '../types/messaging.type';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -13,6 +14,19 @@ export const getConversationList = async (): Promise<
     method: 'GET',
     credentials: 'include',
   });
+  return res.json();
+};
+
+export const searchUsersByName = async (
+  keyword: string
+): Promise<MessagingResponse<User[]>> => {
+  const res = await fetch(
+    `${API_URL}/search/users?keyword=${encodeURIComponent(keyword)}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  );
   return res.json();
 };
 

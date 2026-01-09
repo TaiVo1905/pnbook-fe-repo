@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { ChatImage } from './ChatImage';
+import { UserAvatar } from '@/shared/components/UserAvatar';
 import type { Message } from '../types/messaging.type';
 
 interface MessageItemProps {
@@ -44,18 +45,13 @@ export const MessageItem = ({
       className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2`}
     >
       {!isMe && (
-        <div className="mb-5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">
-          {userAvatarUrl ? (
-            <img
-              src={userAvatarUrl}
-              alt={userName || 'User avatar'}
-              className="h-8 w-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white uppercase">
-              {(userName || chatId || '??').substring(0, 2)}
-            </div>
-          )}
+        <div className="mb-5 flex flex-shrink-0 items-center justify-center">
+          <UserAvatar
+            avatar={userAvatarUrl}
+            name={userName || chatId}
+            size="sm"
+            className="shadow-sm"
+          />
         </div>
       )}
 

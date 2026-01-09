@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from 'date-fns';
 import { enUS } from 'date-fns/locale';
+import { UserAvatar } from '@/shared/components/UserAvatar';
 import type { Conversation } from '../types/messaging.type';
 
 interface ConversationItemProps {
@@ -48,10 +49,11 @@ export const ConversationItem = ({
       }
       className={`flex cursor-pointer items-center gap-3 border-b border-gray-50 p-4 transition-all ${getBackgroundClass()}`}
     >
-      <img
-        src={conversation.user?.avatarUrl || 'https://via.placeholder.com/150'}
-        className="h-12 w-12 rounded-full border border-gray-100 object-cover shadow-sm"
-        alt={conversation.user?.name}
+      <UserAvatar
+        avatar={conversation.user?.avatarUrl}
+        name={conversation.user?.name}
+        size="lg"
+        className="shadow-sm"
       />
       <div className="min-w-0 flex-1">
         <div className="mb-0.5 flex items-baseline justify-between">
