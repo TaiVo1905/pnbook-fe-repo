@@ -224,7 +224,7 @@ export const ProfilePage = () => {
   }
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background min-h-screen min-w-2xl">
       <div
         ref={scrollContainerRef}
         className="max-h-screen space-y-6 overflow-y-scroll pb-8"
