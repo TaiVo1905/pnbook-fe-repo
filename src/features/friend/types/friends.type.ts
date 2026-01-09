@@ -8,12 +8,22 @@ export interface UserInfo {
   initials?: string;
 }
 
+export interface SendFriendRequestResponse {
+  requesterId: string;
+  addresseeId: string;
+  createdAt: string;
+  deletedAt: string | null;
+}
+
 export interface FriendRequest {
   id: string;
+  requesterId: string;
   requester: UserInfo;
+  addresseeId: string;
   addressee: UserInfo;
   status: FriendRequestStatus;
   createdAt: string;
+  deletedAt: string | null;
   updatedAt?: string;
 }
 

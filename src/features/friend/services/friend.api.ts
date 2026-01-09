@@ -4,87 +4,98 @@ import type {
   UserInfo,
   Friend,
   FriendRequest,
+  SendFriendRequestResponse,
   SendFriendRequestPayload,
   RemoveFriendPayload,
 } from '@/features/friend/types/friends.type';
 
-export async function getFriendSuggestions(
-  page = 1,
-  limit = 20
-): Promise<FriendApiResponse<FriendRequest[]>> {
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/friendships?page=${page}&limit=${limit}`,
+export const friendApi = {
+  getUserById: (userId: string) =>
+    httpClient.get<BaseResponse<{ name: string; avatarUrl: string }>>(
+      `/users/${userId}`
+    ),
+
+  getFriendSuggestions: (page = 1, limit = 20) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    return httpClient.get<BaseResponse<UserInfo[]>>(
+      `/users/suggestions?${params}`
+    );
+  },
+
+  searchUsers: (query: string) => {
+    return httpClient.get<BaseResponse<UserInfo[]>>(
+      `/search/users?keyword=${encodeURIComponent(query)}`
+    );
+  },
+
+  getSentFriendRequests: (page = 1, limit = 100) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    return httpClient.get<BaseResponse<FriendRequest[]>>(
+      `/friendships/requests?${params}`
+    );
+  },
+
+  sendFriendRequest: (addresseeId: string) => {
+    return httpClient.post<BaseResponse<SendFriendRequestResponse>>(
+      '/friendships',
       {
-        method: 'GET',
-        credentials: 'include',
+        addresseeId,
       }
     );
+  },
 
-    if (!res.ok) {
-      return {
-        statusCode: res.status,
-        message: 'Failed to fetch friend suggestions',
-        timeStamp: new Date().toISOString(),
-      };
-    }
-
-    const data: FriendRequest[] = await res.json();
-
-    return {
-      statusCode: res.status,
-      message: 'Get friend suggestions success',
-      timeStamp: new Date().toISOString(),
-      data,
-    };
-  } catch {
-    return {
-      statusCode: 500,
-      message: 'Network error when fetching friend suggestions',
-      timeStamp: new Date().toISOString(),
-    };
-  }
-}
-
-export interface SendFriendRequestPayload {
-  friendId: string;
-}
-
-export async function postSendFriendRequest(
-  payload: SendFriendRequestPayload
-): Promise<FriendApiResponse<null>> {
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/friendships`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ addresseeId: payload.friendId }),
-      }
+  cancelFriendRequest: (friendshipId: string) => {
+    return httpClient.delete<BaseResponse<null>>(
+      `/friendships/${friendshipId}`
     );
+  },
 
-    if (!res.ok) {
-      return {
-        statusCode: res.status,
-        message: 'Send friend request failed',
-        timeStamp: new Date().toISOString(),
-      };
-    }
+  getFriends: (page = 1, limit = 20) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    return httpClient.get<BaseResponse<Friend[]>>(`/friendships?${params}`);
+  },
 
-    return {
-      statusCode: res.status,
-      message: 'Send friend request success',
-      timeStamp: new Date().toISOString(),
-      data: null,
-    };
-  } catch {
-    return {
-      statusCode: 500,
-      message: 'Network error when sending friend request',
-      timeStamp: new Date().toISOString(),
-    };
-  }
-}
+  updateFriendStatus: (friendId: string, status: 'accepted' | 'block') => {
+    return httpClient.patch<BaseResponse<null>>(`/friendships/${friendId}`, {
+      status,
+    });
+  },
+
+  unFriend: (friendId: string) => {
+    return httpClient.delete<BaseResponse<null>>(`/friendships/${friendId}`);
+  },
+
+  getIncomingRequests: (page = 1, limit = 20) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    return httpClient.get<BaseResponse<FriendRequest[]>>(
+      `/friendships/requests?${params}`
+    );
+  },
+
+  acceptRequest: (requesterId: string) => {
+    return httpClient.patch<BaseResponse<null>>(
+      `/friendships/requests/${requesterId}/accept`,
+      {}
+    );
+  },
+
+  rejectRequest: (requesterId: string) => {
+    return httpClient.delete<BaseResponse<null>>(
+      `/friendships/requests/${requesterId}`
+    );
+  },
+};
+
+export type { SendFriendRequestPayload, RemoveFriendPayload };

@@ -114,7 +114,11 @@ export const CreatePostModal = ({
       <div className="animate-in zoom-in-95 dark:bg-card w-full max-w-[500px] overflow-hidden rounded-xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b p-4">
           <h2 className="text-lg font-bold">Create post</h2>
-          <IconButton onClick={onClose} variant="ghost">
+          <IconButton
+            onClick={onClose}
+            variant="ghost"
+            className="hover:bg-gray-100"
+          >
             <X size={20} />
           </IconButton>
         </div>

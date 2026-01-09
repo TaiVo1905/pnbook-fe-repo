@@ -1,19 +1,16 @@
 'use client';
 
 import { Button } from '@/core/shadcn/components/ui/button';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/core/shadcn/components/ui/avatar';
-import { UserMinus, UserCheck, UserX, Loader2 } from 'lucide-react';
-import type { Friend } from '@/features/friend/types/friends.type';
+import { UserMinus, UserX, Loader2 } from 'lucide-react';
+import type { UserInfo } from '@/features/friend/types/friends.type';
+import { UserAvatar } from '@/shared/components/UserAvatar';
 
 interface FriendListCardProps {
-  friend: Friend;
-  onRemove: (id: string, newStatus: 'accepted' | 'block') => void;
+  friend: UserInfo;
+  onRemove: (id: string, shouldBlock: boolean) => void;
   onUnfriend?: (id: string) => void;
   isLoading?: boolean;
+  isBlocked?: boolean;
 }
 
 export function FriendListCard({
@@ -21,65 +18,45 @@ export function FriendListCard({
   onRemove,
   onUnfriend,
   isLoading = false,
+  isBlocked = false,
 }: FriendListCardProps) {
-  const user = friend.friend;
-  if (!user) return null;
-
-  const isBlocked = friend.status === 'block';
-
-  const initials =
-    user.initials ??
-    user.name
-      ?.split(' ')
-      .map((w) => w[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-
   return (
     <div className="bg-card border-border rounded-lg border p-4">
       <div className="mb-4 flex items-start gap-3">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={user.avatarUrl} alt={user.name} />
-          <AvatarFallback>{initials}</AvatarFallback>
-        </Avatar>
+        <UserAvatar avatar={friend.avatarUrl} name={friend.name}></UserAvatar>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold">{user.name}</p>
-          {user.title && (
-            <p className="text-muted-foreground text-sm">{user.title}</p>
+          <p className="font-semibold">{friend.name}</p>
+          {friend.title && (
+            <p className="text-muted-foreground text-sm">{friend.title}</p>
           )}
-          <p className="text-muted-foreground text-xs">
-            Friends since {new Date(friend.connectedAt).toLocaleDateString()}
-          </p>
         </div>
       </div>
       <div className="mt-4 grid w-full grid-cols-2 gap-3">
         <Button
-          onClick={() =>
-            onRemove(friend.friendId, isBlocked ? 'accepted' : 'block')
-          }
+          onClick={() => onRemove(friend.id, !isBlocked)}
           disabled={isLoading}
-          variant={isBlocked ? 'outline' : 'secondary'}
+          variant="secondary"
           size="sm"
-          className="h-8 w-full px-1 text-[11px]"
+          className={`h-8 w-full cursor-pointer px-1 text-sm transition-colors ${
+            isBlocked
+              ? 'bg-gray-500 text-white hover:bg-gray-600'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
         >
           {isLoading ? (
             <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-          ) : isBlocked ? (
-            <UserCheck className="mr-2 h-3 w-3" />
           ) : (
             <UserX className="mr-2 h-3 w-3" />
           )}
-
-          {isBlocked ? 'Open Friend' : 'Block'}
+          {isBlocked ? 'Unblock' : 'Block'}
         </Button>
 
         <Button
-          onClick={() => onUnfriend?.(friend.friendId)}
+          onClick={() => onUnfriend?.(friend.id)}
           disabled={isLoading}
           variant="outline"
           size="sm"
-          className="w-full border-red-200 px-1 text-[11px] text-red-600 hover:bg-red-600/10"
+          className="w-full border-gray-200 border-red-200 bg-transparent px-1 text-sm text-red-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700"
         >
           <UserMinus className="mr-1 h-3 w-3" />
           Unfriend
