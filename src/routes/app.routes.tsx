@@ -43,4 +43,8 @@ export const routes: RouteObject[] = [
     element: <Navigate to="/sign-in" replace />,
     children: [...friendsRoutes],
   },
+  {
+    path: '*',
+    element: <Navigate to="/sign-in" replace />,
+  },
 ];

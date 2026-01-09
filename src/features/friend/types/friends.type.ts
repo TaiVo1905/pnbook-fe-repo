@@ -29,13 +29,19 @@ export interface FriendRequest {
 
 export interface Friend {
   id: string;
-  friendId: string;
   userId: string;
   friend: UserInfo;
   status: 'accepted' | 'block';
   connectedAt: string;
 }
 
+export interface SendFriendRequestPayload {
+  friendId: string;
+}
+
+export interface RemoveFriendPayload {
+  friendId: string;
+}
 export interface SendFriendRequestPayload {
   friendId: string;
 }
