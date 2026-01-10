@@ -6,16 +6,19 @@ import { useRealtimeMessages } from '../hooks/useRealtimeMessages';
 import { ChatHeader } from './ChatHeader';
 import { MessageList } from './MessageList';
 import { ChatInput } from './ChatInput';
+import type { Message } from '../types/messaging.type';
 const ChatWindow = ({
   chatId,
   userName,
   userAvatarUrl,
   currentUserId,
+  onMessageSent,
 }: {
   chatId: string;
   userName?: string;
   userAvatarUrl?: string;
   currentUserId?: string;
+  onMessageSent?: (msg: Message) => void;
 }) => {
   const prevScrollHeightRef = useRef(0);
   const prevScrollTopRef = useRef(0);
@@ -48,6 +51,7 @@ const ChatWindow = ({
       chatId,
       onMessageSent: (msg) => {
         addMessage(msg);
+        onMessageSent?.(msg);
         scrollToBottom();
       },
       onScrollToBottom: scrollToBottom,

@@ -3,7 +3,7 @@ import { PrivateLayout } from '@/core/layouts/PrivateLayout';
 import PublicLayout from '@/core/layouts/PublicLayout';
 import { authRoutes } from '@/features/auth/routes/auth.routes';
 import { postRoutes } from '@/features/post/routes/post.routes';
-import { SearchPage } from '@/features/post/pages/SearchPage';
+import { searchRoutes } from '@/features/search/routes/search.routes';
 import { NotFoundPage } from '@/core/pages/NotFoundPage';
 import { friendsRoutes } from '@/features/friend/routes/friend.route';
 import { messagingRoutes } from '@/features/messaging/routes/messaging.routes';
@@ -28,7 +28,7 @@ export const routes: RouteObject[] = [
     children: [
       {
         path: 'home',
-        children: [...postRoutes, { path: 'search', element: <SearchPage /> }],
+        children: [...postRoutes, ...searchRoutes],
       },
       ...friendsRoutes,
       ...messagingRoutes,
